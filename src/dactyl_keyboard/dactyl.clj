@@ -54,7 +54,7 @@
 
 (def wall-z-offset -8)                 ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter; originally 5
+(def wall-thickness 5)                  ; wall thickness parameter; originally 5
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
