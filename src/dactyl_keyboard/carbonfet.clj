@@ -9,29 +9,25 @@
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
 
-(defn replace-last [coll x]
-  (concat (butlast coll) [x]))
-
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (def nrows 5)
-(def ncols 6)
+(def ncols 7)
 
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 4))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 
-(def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
+(def pinky-15u true)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
 (def last-15u-row 3)                    ; controls which should be the last row to have 1.5u keys on the outer column
 
-
 (def extra-row true)                   ; adds an extra bottom row to the outer columns
-(def inner-column false)                ; adds an extra inner column (two less rows than nrows)
+(def inner-column true)                ; adds an extra inner column (two less rows than nrows)
 (def thumb-style "default")                ; toggles between "default", "mini", and "cf" thumb cluster
 
 (def column-style :standard)
@@ -48,14 +44,14 @@
 
 (def thumb-offsets [6 -3 7])
 
-(def keyboard-z-offset 25)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 8)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 1.0)                  ; original= 0.5
 
 (def wall-z-offset -8)                 ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 5)                  ; wall thickness parameter; originally 5
+(def wall-thickness 2)                  ; wall thickness parameter; originally 5
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -69,7 +65,7 @@
 
 ; If you use Cherry MX or Gateron switches, this can be turned on.
 ; If you use other switches such as Kailh, you should set this as false
-(def create-side-nubs? true)
+(def create-side-nubs? false)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -1319,207 +1315,6 @@
 (def usb-holder-notch  (translate (map + usb-holder-position [-1.5 (+ 4.4 notch-offset) 2.9]) (cube 31.366 1.3 12.4)))
 (def trrs-notch        (translate (map + usb-holder-position [-10.33 (+ 3.6 notch-offset) 6.6]) (cube 8.4 2.4 19.8)))
 
-
-(def arduino-holder-thickness 6)
-(def usb-hole-size [8 9 13])
-(def usb-hole-position (replace-last
-   (map + [4 -2 0] (key-position 0 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
-   (+ (/ (last usb-hole-size) 2) 3)
-))
-
-(def arduino-length 32)
-(def micro-usb-height 4.2)
-(def arduino-holder-size (map + [arduino-holder-thickness (+ arduino-length 2) (+ arduino-holder-thickness 2)] usb-hole-size))
-(def arduino-holder
-    (->> (union
-            (difference
-                (->> (apply cube arduino-holder-size)
-                     (translate [0 (/ (second arduino-holder-size) -2) 0]))
-                (->> (cube (first arduino-holder-size) arduino-length (+ (last arduino-holder-size) 1))
-                     (translate [(/ arduino-holder-thickness 2) (- (/ arduino-length -2) (second usb-hole-size)) 0]))
-            )
-            (difference
-                (->> (cube (first arduino-holder-size) 4 (last arduino-holder-size))
-                    (translate [0 (- (second usb-hole-size)) 0]))
-                (->> (cube micro-usb-height 4.1 (+ (last arduino-holder-size) 0.1))
-                    (translate [0 (- (second usb-hole-size)) 0]))
-            )
-            (->> (cube 2 2 6)
-                 (translate [(- 3 (/ (first arduino-holder-size) 2)) (- 3 (second arduino-holder-size)) 0]))
-         )
-         (translate usb-hole-position)))
-
-(def io-holder-thickness 6)
-(def io-length 36)
-(def micro-usb-height 4.2)
-(def io-holder-size (map + [io-holder-thickness (+ io-length 2) (+ io-holder-thickness 2)] usb-hole-size))
-(def io-holder
-    (->> (union
-            (difference
-                (->> (apply cube io-holder-size)
-                     (translate [0 (/ (second io-holder-size) -2) 0]))
-                (->> (cube (first io-holder-size) io-length (+ (last io-holder-size) 1))
-                     (translate [(/ io-holder-thickness 2) (- (/ io-length -2) (second usb-hole-size)) 0]))
-            )
-            (difference
-                (->> (cube (first io-holder-size) 4 (last io-holder-size))
-                    (translate [0 (- (second usb-hole-size)) 0]))
-                (->> (cube micro-usb-height 4.1 (+ (last io-holder-size) 0.1))
-                    (translate [0 (- (second usb-hole-size)) 0]))
-            )
-            (->> (cube 2 2 6)
-                 (translate [(- 3 (/ (first io-holder-size) 2)) (- 3 (second io-holder-size)) 0]))
-         )
-         (translate usb-hole-position)))
-
-
-; (def usb-holder-extend 10)
-; (def usb-holder-hole
-;     (->> (apply cube (map + [0 usb-holder-extend 0] usb-hole-size))
-;          (translate (map + [0 (/ (- usb-holder-extend (second usb-hole-size)) 2) 0] usb-hole-position))))
-
-
-; (def cable-hole-position (replace-last
-;    (key-position 0 0 (map + (wall-locate2 0 1) [35 (/ mount-height 2) 0]))
-;    6))
-; (def cable-hole
-;   (->> (cylinder 2.5 10)
-;        (rotate (deg2rad 90) [1 0 0])
-;        (translate cable-hole-position)))
-
-
-(def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 2.65 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
-
-(def usb-holder-size [5.5 33 20 ])	;;5.5 33.34 18.4 
-(def usb-hole-size [9.5 33.34 18.4  ]) ;;9.5 33.34 18.4 
-#_(def usb-holder-size [5.5 27.8 23.4 ])	;;Dimensions for adafruit feather
-#_(def usb-hole-size [9.5 33.34 23.4  ])  ;Dimensions for adafruit feather
-(def usb-hole-size-left [9.5 35.6 8.0 ]) ;;9.5 35.6 8.0 
-(def usb-hole-size-right [6 35.6 10.0 ]) ;;6 35.6 10.0
-(def usb-holder-thickness 5)
-(def usb-holder
-    (->> (difference
-
-	(cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness) 
-
-	 )
-
-	; (cube 5 5 5)
-     ) ; (apply cube usb-hole-size))
-	
-
-	(translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-		; (rotate -0.6 [0 0 1])
-		;( translate [(- (first usb-holder-position) 10) (+ (second usb-holder-position) 4) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-		))
-		 
-		 
-(def usb-holder-hole
-    (->>
-		(union
-		(->>(apply cube usb-hole-size)
-         (translate [(+ (first usb-holder-position ) 2) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
-		 (->>(apply cube usb-hole-size-left)
-         (translate [(+ (first usb-holder-position ) 2) (- (second usb-holder-position) 10) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
-		 (->>(apply cube usb-hole-size-right)
-         (translate [(+ (first usb-holder-position ) 2) (+ (second usb-holder-position) 10) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
-		 )))
-		 
-(def trrs-holder-position (key-position 2.2 1 (map + (wall-locate1 0 (+ 3.8 (* 0.13 nrows))) [0 (/ mount-height 2) 0])))
-(def trrs-holder-size [7.4 13.6 10.3 ])
-(def trrs-hole-size [7.4 14.6 10.3 ])
-
-(def trrs-hole-size-back [7. 6. 4. ])
-(def trrs-hole-size-right [3.35 10])
-(def trrs-holder-thickness 4)
-(def trrs-holder
-  (->> (difference (cube (+ (first trrs-holder-size) trrs-holder-thickness) (+ (second trrs-holder-size) trrs-holder-thickness) (+ (last trrs-holder-size) trrs-holder-thickness) )
-		(->>(->> (cube 25 50 5)(rotate (/ 1.5708 -2) [1 0 0]))(translate [2 (+ 5 nrows) 5]))
-  )      
-	  (translate [(first trrs-holder-position) (second trrs-holder-position) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)])
-))
-;(def trrs-holder
- ;   (->> (cube (+ (first usb-holder-size) usb-holder-thickness) (second usb-holder-size) (+ (last usb-holder-size) usb-holder-thickness))
- ;        (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))		 
-		 
-(def trrs-holder-hole
-    (->>
-		(union
-		(->>(apply cube trrs-hole-size)
-         (translate [(- (first trrs-holder-position )4.2) (second trrs-holder-position) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)]))
-
-		 (->>(apply cube trrs-hole-size-back)
-             (translate [(- (first trrs-holder-position )4.1) (- (second trrs-holder-position) 6.5) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)]))
-		 	
-		 (->>(apply   cylinder trrs-hole-size-right)
-	(rotate 1.5708 [1 0 0])
-        (translate [(- (first trrs-holder-position ) 3.7) (+ (second trrs-holder-position) 10) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)])
-		)
-		)))		 
-		 
-		 
-
-(def teensy-width 20)  
-(def teensy-height 12)
-(def teensy-length 33)
-(def teensy2-length 53)
-(def teensy-pcb-thickness 2) 
-(def teensy-holder-width  (+ 7 teensy-pcb-thickness))
-(def teensy-holder-height (+ 6 teensy-width))
-(def teensy-offset-height 5)
-(def teensy-holder-top-length 18)
-(def teensy-top-xy (key-position 0 (- centerrow 1) (wall-locate3 -1 0)))
-(def teensy-bot-xy (key-position 0 (+ centerrow 1) (wall-locate3 -1 0)))
-(def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
-(def teensy-holder-offset (/ teensy-holder-length -2))
-(def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
- 
-(def teensy-holder 
-    (->> 
-        (union 
-          (->> (cube 3 teensy-holder-length (+ 6 teensy-width))
-               (translate [1.5 teensy-holder-offset 0]))
-          (->> (cube teensy-pcb-thickness teensy-holder-length 3)
-               (translate [(+ (/ teensy-pcb-thickness 2) 3) teensy-holder-offset (- -1.5 (/ teensy-width 2))]))
-          (->> (cube 4 teensy-holder-length 4)
-               (translate [(+ teensy-pcb-thickness 5) teensy-holder-offset (-  -1 (/ teensy-width 2))]))
-          (->> (cube teensy-pcb-thickness teensy-holder-top-length 3)
-               (translate [(+ (/ teensy-pcb-thickness 2) 3) teensy-holder-top-offset (+ 1.5 (/ teensy-width 2))]))
-          (->> (cube 4 teensy-holder-top-length 4)
-               (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
-        (translate [(- teensy-holder-width) 0 0])
-        (translate [-1.4 0 0])
-        (translate [(first teensy-top-xy) 
-                    (- (second teensy-top-xy) 1) 
-                    (/ (+ 6 teensy-width) 2)])
-           ))
-		   
-(def wire-post-height 7)
-(def wire-post-overhang 3.5)
-(def wire-post-diameter 2.6)
-(defn wire-post [direction offset]
-   (->> (union (translate [0 (* wire-post-diameter -0.5 direction) 0] (cube wire-post-diameter wire-post-diameter wire-post-height))
-               (translate [0 (* wire-post-overhang -0.5 direction) (/ wire-post-height -2)] (cube wire-post-diameter wire-post-overhang wire-post-diameter)))
-        (translate [0 (- offset) (+ (/ wire-post-height -2) 3) ])
-        (rotate (/ α -2) [1 0 0])
-        (translate [3 (/ mount-height -2) 0])))
-		
-(def wire-posts
-  (union
-     (thumb-ml-place (translate [-5 0 -2] (wire-post  1 0)))
-     (thumb-ml-place (translate [ 0 0 -2.5] (wire-post -1 6)))
-     (thumb-ml-place (translate [ 5 0 -2] (wire-post  1 0)))
-     (for [column (range 0 lastcol)
-           row (range 0 cornerrow)]
-       (union
-        (key-place column row (translate [-5 0 0] (wire-post 1 0)))
-        (key-place column row (translate [0 0 0] (wire-post -1 6)))
-        (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
-		   
-		   
-
-
-
 ; Screw insert definition & position
 (defn screw-insert-shape [bottom-radius top-radius height]
   (union
@@ -1549,8 +1344,8 @@
     (def screw-offset-tr [-3.5 6.5 0])
     (def screw-offset-br [-3.5 -6.5 0]))
 (when (and (false? pinky-15u) (false? extra-row))
-    (def screw-offset-tr [-1 7.5 0])
-    (def screw-offset-br [-8 14 0]))
+    (def screw-offset-tr [-4 6.5 0])
+    (def screw-offset-br [-6 13 0]))
     
 ; Offsets for the screw inserts dependent on thumb-style & inner-column
 (when (and (= thumb-style "cf") inner-column)
@@ -1570,23 +1365,21 @@
     (def screw-offset-tm [9.5 -4.5 0])
     (def screw-offset-bm [-1 -7 0]))
 (when (and (= thumb-style "default") inner-column)
-    (def screw-offset-bl [-20 -6 0])
+    (def screw-offset-bl [5 -6 0])
     (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [4 0 0]))
+    (def screw-offset-bm [8 -1 0]))
 (when (and (= thumb-style "default") (false? inner-column))
-   (def screw-offset-bl [-31 -8 0])
+    (def screw-offset-bl [-11.7 -8 0])
     (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [1 -1 0]))
+    (def screw-offset-bm [8 -1 0]))
 
          (defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union (screw-insert 0 0         bottom-radius top-radius height [-3.5 -20 0])
+  (union (screw-insert 0 0         bottom-radius top-radius height [8 10.5 0])
          (screw-insert 0 lastrow   bottom-radius top-radius height screw-offset-bl)
          (screw-insert lastcol lastrow  bottom-radius top-radius height screw-offset-br)
          (screw-insert lastcol 0         bottom-radius top-radius height screw-offset-tr)
          (screw-insert (+ 2 innercol-offset) 0         bottom-radius top-radius height screw-offset-tm)
-         (screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height screw-offset-bm)
-  							(screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height [-32 -34 0])))
-  
+         (screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height screw-offset-bm)))
 
 ; Hole Depth Y: 4.4
 (def screw-insert-height 6)
@@ -1653,22 +1446,10 @@
                      thumb-type
                      thumb-connector-type
                      (difference (union case-walls
-                                        screw-insert-outers
-                                       ; arduino-holder
-                                       usb-holder
-                                       trrs-holder
-                                       ;teensy-holder
-
-                                  )
-                     usb-holder-hole
-                     trrs-holder-hole
-
-
-                     												;usb-holder-hole
-                     											;	cable-hole
-                                 ; usb-holder-space
-                                 ; trrs-notch
-                                 ; usb-holder-notch
+                                        screw-insert-outers)
+                                 usb-holder-space
+                                 trrs-notch
+                                 usb-holder-notch
                                  screw-insert-holes))
                    (translate [0 0 -20] (cube 350 350 40))))
 
@@ -1676,33 +1457,7 @@
       (write-scad model-right))
 
 (spit "things/left.scad"
-      (write-scad (mirror [-1 0 0] 
-      	(difference
-      	                   (union
-      	                     key-holes
-      	                     key-holes-inner
-      	                     pinky-connectors
-      	                     extra-connectors
-      	                     connectors
-      	                     inner-connectors
-      	                     thumb-type
-      	                     thumb-connector-type
-      	                     (difference (union case-walls
-      	                                        screw-insert-outers
-      	                                        usb-holder
-      	                                        trrs-holder
-      	                                        ;io-holder
-      	                                  )
-      	                     usb-holder-hole
-                     trrs-holder-hole
-      	                     												;usb-holder-hole
-      	                     												cable-hole
-      	                                 ; usb-holder-space
-      	                                 ; trrs-notch
-      	                                 ; usb-holder-notch
-      	                                 screw-insert-holes))
-      	                   (translate [0 0 -20] (cube 350 350 40))))
-      ))
+      (write-scad (mirror [-1 0 0] model-right)))
 
 (spit "things/right-test.scad"
       (write-scad (union model-right
@@ -1729,29 +1484,6 @@
                 caps-fill
                 screw-insert-outers)
               (translate [0 0 -10] screw-insert-screw-holes))))))
-
-(spit "things/left-plate.scad" 
-	(write-scad (mirror [-1 0 0] 	
-	  (extrude-linear
-	    {:height 2.6 :center false}
-	    (project
-	      (difference
-	        (union
-	          key-holes
-	          key-holes-inner
-	          pinky-connectors
-	          extra-connectors
-	          connectors
-	          inner-connectors
-	          thumb-type
-	          thumb-connector-type
-	          case-walls
-	          thumbcaps-fill-type
-	          caps-fill
-	          screw-insert-outers)
-	        (translate [0 0 -10] screw-insert-screw-holes)))))
-	)
-)
 
 (spit "things/right-plate-laser.scad"
       (write-scad

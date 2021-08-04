@@ -16,7 +16,7 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 5)
+(def nrows 4)
 (def ncols 6)
 
 (def α (/ π 12))                        ; curvature of the columns
