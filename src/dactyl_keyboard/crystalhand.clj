@@ -55,8 +55,8 @@
 (def β (deg2rad 5))                        ;default 5 curvature of the rows
 ;(def centerrow  2)
 (def centerrow (- nrows 3))             ;default 3 controls front-back tilt
-(def centercol 4)                       ;default 3 controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/  π 4 ))            ;default 15 or, change this for more precise tenting control
+(def centercol 3)                       ;default 3 controls left-right tilt / tenting (higher number is more tenting)
+(def tenting-angle (/ (* π 15) 180))            ;default 15 or, change this for more precise tenting control
 ;(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style 
   (if (> nrows 5) :orthographic :fixed))  ; options include :standard, :orthographic, and :fixed
