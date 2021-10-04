@@ -25,7 +25,8 @@
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 4))            ; or, change this for more precise tenting control
 
-(def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
+
+(def pinky-15u true)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
 (def last-15u-row 3)                    ; controls which should be the last row to have 1.5u keys on the outer column
 
@@ -46,12 +47,12 @@
           (>= column 4) [0 -12 5.64]    ; original [0 -5.8 5.64]
           :else [0 0 0])))
 
-(def thumb-offsets [6 -3 7])
+(def thumb-offsets [6 -3 1])
 
 (def keyboard-z-offset 25)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
-(def extra-height 1.0)                  ; original= 0.5
+(def extra-height 2.0)                  ; original= 0.5
 
 (def wall-z-offset -8)                 ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
@@ -444,28 +445,58 @@
        (translate thumborigin)
        (translate [-12 -16 3])
        ))
+
+; (defn thumb-tl-place [shape]
+;   (->> shape
+;        (rotate (deg2rad  10) [1 0 0])
+;        (rotate (deg2rad -23) [0 1 0])
+;        (rotate (deg2rad  10) [0 0 1])
+;        (translate thumborigin)
+;        (translate [-32 -15 -2])))
+
 (defn thumb-tl-place [shape]
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
-       (rotate (deg2rad -23) [0 1 0])
-       (rotate (deg2rad  10) [0 0 1])
+       (rotate (deg2rad -26) [0 1 0])
+       (rotate (deg2rad  22) [0 0 1])
        (translate thumborigin)
-       (translate [-32 -15 -2])))
+       (translate [-35 -14 -3])))
+
+; (defn thumb-mr-place [shape]
+;   (->> shape
+;        (rotate (deg2rad  -6) [1 0 0])
+;        (rotate (deg2rad -34) [0 1 0])
+;        (rotate (deg2rad  48) [0 0 1])
+;        (translate thumborigin)
+;        (translate [-29 -40 -13])
+;        ))
+
 (defn thumb-mr-place [shape]
   (->> shape
-       (rotate (deg2rad  -6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
-       (rotate (deg2rad  48) [0 0 1])
+       (rotate (deg2rad  20) [1 0 0])
+       (rotate (deg2rad -26) [0 1 0])
+       (rotate (deg2rad  22) [0 0 1])
        (translate thumborigin)
-       (translate [-29 -40 -13])
+       (translate [-23 -38 -8])
        ))
+
+
+; (defn thumb-ml-place [shape]
+;   (->> shape
+;        (rotate (deg2rad   6) [1 0 0])
+;        (rotate (deg2rad -34) [0 1 0])
+;        (rotate (deg2rad  40) [0 0 1])
+;        (translate thumborigin)
+;        (translate [-51 -25 -12])))
+
 (defn thumb-ml-place [shape]
   (->> shape
        (rotate (deg2rad   6) [1 0 0])
        (rotate (deg2rad -34) [0 1 0])
        (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
-       (translate [-51 -25 -12])))
+       (translate [-52 -24 -12])))
+
 (defn thumb-br-place [shape]
   (->> shape
        (rotate (deg2rad -16) [1 0 0])
@@ -486,13 +517,14 @@
 (defn thumb-1x-layout [shape]
   (union
    (thumb-mr-place shape)
-   (thumb-ml-place shape)
    (thumb-br-place shape)
+         (thumb-ml-place shape)
    (thumb-bl-place shape)))
 
 (defn thumb-15x-layout [shape]
   (union
    (thumb-tr-place shape)
+
    (thumb-tl-place shape)))
 
 (def larger-plate
@@ -1390,12 +1422,12 @@
 
 (def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 2.65 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
 
-(def usb-holder-size [5.5 33 20 ])	;;5.5 33.34 18.4 
-(def usb-hole-size [9.5 33.34 18.4  ]) ;;9.5 33.34 18.4 
+(def usb-holder-size [5.5 32 20 ])	;;5.5 33.34 18.4 
+(def usb-hole-size [9.5 32 20  ]) ;;9.5 33.34 18.4 
 #_(def usb-holder-size [5.5 27.8 23.4 ])	;;Dimensions for adafruit feather
 #_(def usb-hole-size [9.5 33.34 23.4  ])  ;Dimensions for adafruit feather
 (def usb-hole-size-left [9.5 38 12.0 ]) ;;9.5 35.6 8.0 
-(def usb-hole-size-right [6 35.6 10.0 ]) ;;6 35.6 10.0
+(def usb-hole-size-right [8 35.6 13.0 ]) ;;6 35.6 10.0
 (def usb-holder-thickness 5)
 (def usb-holder
     (->> (difference
@@ -1462,7 +1494,7 @@
 (def trrs-hole-size [7.4 14.6 10.3 ])
 
 (def trrs-hole-size-back [7. 6. 4. ])
-(def trrs-hole-size-right [3.35 10])
+(def trrs-hole-size-right [4 10])
 (def trrs-holder-thickness 4)
 (def trrs-holder
   (->> (difference (cube (+ (first trrs-holder-size) trrs-holder-thickness) (+ (second trrs-holder-size) trrs-holder-thickness) (+ (last trrs-holder-size) trrs-holder-thickness) )
@@ -1571,44 +1603,15 @@
          (translate (map + offset [(first position) (second position) (/ height 2)])))))
 
 ; Offsets for the screw inserts dependent on extra-row & pinky-15u
-(when (and pinky-15u extra-row)
-    (def screw-offset-tr [1 7 0])
-    (def screw-offset-br [7 14 0]))
-(when (and pinky-15u (false? extra-row))
-    (def screw-offset-tr [1 7 0])
-    (def screw-offset-br [6.5 15.5 0]))
-(when (and (false? pinky-15u) extra-row)
-    (def screw-offset-tr [-0.9 6.5 0])
-    (def screw-offset-br [-0.9 -6.5 0]))
-(when (and (false? pinky-15u) (false? extra-row))
-    (def screw-offset-tr [-1 7.5 0])
-    (def screw-offset-br [-8 14 0]))
-    
-; Offsets for the screw inserts dependent on thumb-style & inner-column
-(when (and (= thumb-style "cf") inner-column)
-    (def screw-offset-bl [9 4 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [13 -7 0]))
-(when (and (= thumb-style "cf") (false? inner-column))
-    (def screw-offset-bl [-7.7 2 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [13 -7 0]))
-(when (and (= thumb-style "mini") inner-column)
-    (def screw-offset-bl [14 8 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [-1 -7 0]))
-(when (and (= thumb-style "mini") (false? inner-column))
-    (def screw-offset-bl [-1 4.2 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [-1 -7 0]))
-(when (and (= thumb-style "default") inner-column)
-    (def screw-offset-bl [-20 -6 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [4 0 0]))
-(when (and (= thumb-style "default") (false? inner-column))
-   (def screw-offset-bl [-27 -8 0])
-    (def screw-offset-tm [9.5 -4.5 0])
-    (def screw-offset-bm [1 -1 0]))
+
+    (def screw-offset-tr [5 8 0])
+    (def screw-offset-br [0 -8 0])
+
+
+    (def screw-offset-bl [-30 -6 0])
+    (def screw-offset-tm [50 -4.5 0])
+    (def screw-offset-bm [3 0 0])
+
 
          (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union 
@@ -1632,7 +1635,7 @@
   
 
 ; Hole Depth Y: 4.4
-(def screw-insert-height 6)
+(def screw-insert-height 8)
 
 ; Hole Diameter C: 4.1-4.4
 (def screw-insert-bottom-radius (/ 4.0 2))
@@ -1732,11 +1735,11 @@
       	                     thumb-connector-type
       	                     (difference (union case-walls
       	                                        screw-insert-outers
-      	                                        usb-holder-left
+      	                                        ;usb-holder-left
       	                                        trrs-holder
       	                                        ;io-holder
       	                                  )
-      	                     usb-holder-hole-left
+      	                   ;  usb-holder-hole-left
                      trrs-holder-hole
       	                     												;usb-holder-hole
       	                     										;		cable-hole
