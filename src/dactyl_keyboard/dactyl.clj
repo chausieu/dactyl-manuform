@@ -47,7 +47,7 @@
           (>= column 4) [0 -12 5.64]    ; original [0 -5.8 5.64]
           :else [0 0 0])))
 
-(def thumb-offsets [6 -3 1])
+(def thumb-offsets [6 -3 2])
 
 (def keyboard-z-offset 25)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
@@ -458,9 +458,9 @@
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
        (rotate (deg2rad -26) [0 1 0])
-       (rotate (deg2rad  22) [0 0 1])
+       (rotate (deg2rad  24) [0 0 1])
        (translate thumborigin)
-       (translate [-35 -14 -3])))
+       (translate [-34.5 -14 -3])))
 
 ; (defn thumb-mr-place [shape]
 ;   (->> shape
@@ -473,11 +473,11 @@
 
 (defn thumb-mr-place [shape]
   (->> shape
-       (rotate (deg2rad  20) [1 0 0])
+       (rotate (deg2rad  16) [1 0 0])
        (rotate (deg2rad -26) [0 1 0])
-       (rotate (deg2rad  22) [0 0 1])
+       (rotate (deg2rad  24) [0 0 1])
        (translate thumborigin)
-       (translate [-23 -38 -8])
+       (translate [-23 -38 -10])
        ))
 
 
@@ -492,26 +492,45 @@
 (defn thumb-ml-place [shape]
   (->> shape
        (rotate (deg2rad   6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
+       (rotate (deg2rad -32) [0 1 0])
        (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
        (translate [-52 -24 -12])))
 
+
+; (defn thumb-br-place [shape]
+;   (->> shape
+;        (rotate (deg2rad -16) [1 0 0])
+;        (rotate (deg2rad -33) [0 1 0])
+;        (rotate (deg2rad  54) [0 0 1])
+;        (translate thumborigin)
+;        (translate [-37.8 -55.3 -25.3])
+;        ))
+
 (defn thumb-br-place [shape]
   (->> shape
-       (rotate (deg2rad -16) [1 0 0])
-       (rotate (deg2rad -33) [0 1 0])
+       (rotate (deg2rad 6) [1 0 0])
+       (rotate (deg2rad -26) [0 1 0])
        (rotate (deg2rad  54) [0 0 1])
        (translate thumborigin)
-       (translate [-37.8 -55.3 -25.3])
+       (translate [-38.8 -54 -23.3])
        ))
+; (defn thumb-bl-place [shape]
+;   (->> shape
+;        (rotate (deg2rad  -4) [1 0 0])
+;        (rotate (deg2rad -35) [0 1 0])
+;        (rotate (deg2rad  52) [0 0 1])
+;        (translate thumborigin)
+;        (translate [-56.3 -43.3 -23.5])
+;        ))
+
 (defn thumb-bl-place [shape]
   (->> shape
        (rotate (deg2rad  -4) [1 0 0])
-       (rotate (deg2rad -35) [0 1 0])
-       (rotate (deg2rad  52) [0 0 1])
+       (rotate (deg2rad -30) [0 1 0])
+       (rotate (deg2rad  48) [0 0 1])
        (translate thumborigin)
-       (translate [-56.3 -43.3 -23.5])
+       (translate [-62 -40 -23.5])
        ))
 
 (defn thumb-1x-layout [shape]
@@ -524,8 +543,10 @@
 (defn thumb-15x-layout [shape]
   (union
    (thumb-tr-place shape)
-
-   (thumb-tl-place shape)))
+   (thumb-tl-place shape)
+   (thumb-ml-place shape)
+  (thumb-bl-place shape)
+  ))
 
 (def larger-plate
   (let [plate-height (/ (- sa-double-length mount-height) 3)
@@ -1631,7 +1652,7 @@
          ; (screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height screw-offset-bm)
 
          ;bottom bottom left
-  							(screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height [-30 -34 0])))
+  							(screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height [-33 -32 0])))
   
 
 ; Hole Depth Y: 4.4
