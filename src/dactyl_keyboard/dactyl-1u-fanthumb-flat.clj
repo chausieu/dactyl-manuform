@@ -23,8 +23,8 @@
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 4))            ; or, change this for more precise tenting control
-
+;(def tenting-angle (/ π 3.5))            ; or, change this for more precise tenting control
+(def tenting-angle (/ π 8))
 
 (def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
@@ -48,7 +48,7 @@
 
 (def thumb-offsets [6 -3 2])
 
-(def keyboard-z-offset 25)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 9)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2()
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 2.0)                  ; original= 0.5
@@ -249,13 +249,15 @@
                :fixed        placed-shape-fixed
                placed-shape)
          (rotate-y-fn  tenting-angle)
-         (translate-fn [0 0 keyboard-z-offset]))))
+         (translate-fn [0 0 keyboard-z-offset]))
+))
 
 (defn key-place [column row shape]
   (apply-key-geometry translate
                       (fn [angle obj] (rotate angle [1 0 0] obj))
                       (fn [angle obj] (rotate angle [0 1 0] obj))
-                      column row shape))
+                      column row shape)
+)
 
 (defn rotate-around-x [angle position]
   (mmul
@@ -449,7 +451,7 @@
 (def thumborigin
   (map + (key-position (+ innercol-offset 1) cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
        thumb-offsets))
-;space
+
 (defn thumb-tr-place [shape]
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
@@ -467,7 +469,6 @@
 ;        (translate thumborigin)
 ;        (translate [-32 -15 -2])))
 
-;enter-key
 (defn thumb-tl-place [shape]
   (->> shape
        (rotate (deg2rad  10) [1 0 0])
@@ -489,7 +490,7 @@
 ;bottom right;
 (defn thumb-mr-place [shape]
   (->> shape
-       (rotate (deg2rad  4) [1 0 0])
+       (rotate (deg2rad  16) [1 0 0])
        (rotate (deg2rad -26) [0 1 0])
        (rotate (deg2rad  36) [0 0 1])
        (translate thumborigin)
@@ -504,14 +505,14 @@
 ;        (rotate (deg2rad  40) [0 0 1])
 ;        (translate thumborigin)
 ;        (translate [-51 -25 -12])))
-;shift key
+
 (defn thumb-ml-place [shape]
   (->> shape
-       (rotate (deg2rad   2) [1 0 0])
-       (rotate (deg2rad -28) [0 1 0])
-       (rotate (deg2rad  39) [0 0 1])
+       (rotate (deg2rad   6) [1 0 0])
+       (rotate (deg2rad -32) [0 1 0])
+       (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
-       (translate [-52 -25 -12])))
+       (translate [-52 -24 -12])))
 
 
 ; (defn thumb-br-place [shape]
@@ -526,7 +527,7 @@
 ;bottom left;
 (defn thumb-br-place [shape]
   (->> shape
-       (rotate (deg2rad -4) [1 0 0])
+       (rotate (deg2rad 8) [1 0 0])
        (rotate (deg2rad -27) [0 1 0])
        (rotate (deg2rad  48) [0 0 1])
        (translate thumborigin)
@@ -1671,11 +1672,11 @@
 
 ; Offsets for the screw inserts dependent on extra-row & pinky-15u
 
-    (def screw-offset-tr [1 8 0])
-    (def screw-offset-br [0 -8 0])
+    (def screw-offset-tr [-2 7 0])
+    (def screw-offset-br [-2 -7 0])
 
 
-    (def screw-offset-bl [-40 -26 0])
+    (def screw-offset-bl [-28 -26 0])
     (def screw-offset-tm [50 -4.5 0])
     (def screw-offset-bm [3 0 0])
 
@@ -1683,7 +1684,7 @@
          (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union 
   ;top left
-  (screw-insert 0 0         bottom-radius top-radius height [5 -4 0])
+  (screw-insert 0 0         bottom-radius top-radius height [8.7 3 0])
 
   						;bottom left
          (screw-insert 0 lastrow   bottom-radius top-radius height screw-offset-bl)
@@ -1698,7 +1699,7 @@
          ; (screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height screw-offset-bm)
 
          ;bottom bottom left
-  							(screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height [-33 -43 0])))
+  							(screw-insert (+ 1 innercol-offset) lastrow         bottom-radius top-radius height [-27 -40 0])))
   
 
 ; Hole Depth Y: 4.4
@@ -1711,7 +1712,7 @@
 
 ; Wall Thickness W:\t1.65
 (def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 1.65) (+ screw-insert-top-radius 1.65) (+ screw-insert-height 1)))
-(def screw-insert-screw-holes  (screw-insert-all-shapes 1.7 1.7 350))
+(def screw-insert-screw-holes  (screw-insert-all-shapes 3 3 350))
 
 ; Connectors between outer column and right wall when 1.5u keys are used
 (def pinky-connectors
@@ -1825,7 +1826,7 @@
 (spit "things/right-plate.scad"
       (write-scad
         (extrude-linear
-          {:height 2.6 :center false}
+          {:height 6 :center false}
           (project
             (difference
               (union
@@ -1841,12 +1842,35 @@
                 thumbcaps-fill-type
                 caps-fill
                 screw-insert-outers)
-              (translate [0 0 -10] screw-insert-screw-holes))))))
+              (translate [0 0 -10] screw-insert-screw-holes)
+              )))))
+
+(spit "things/right-plate-no-holes.scad"
+      (write-scad
+        (extrude-linear
+          {:height 6 :center false}
+          (project
+            (difference
+              (union
+                key-holes
+                key-holes-inner
+                pinky-connectors
+                extra-connectors
+                connectors
+                inner-connectors
+                thumb-type
+                thumb-connector-type
+                case-walls
+                thumbcaps-fill-type
+                caps-fill
+                screw-insert-outers)
+              ;(translate [0 0 -10] screw-insert-screw-holes)
+              )))))
 
 (spit "things/left-plate.scad" 
 	(write-scad (mirror [-1 0 0] 	
 	  (extrude-linear
-	    {:height 2.6 :center false}
+	    {:height 6 :center false}
 	    (project
 	      (difference
 	        (union
@@ -1866,10 +1890,34 @@
 	)
 )
 
+(spit "things/left-plate.scad" 
+	(write-scad (mirror [-1 0 0] 	
+	  (extrude-linear
+	    {:height 6 :center false}
+	    (project
+	      (difference
+	        (union
+	          key-holes
+	          key-holes-inner
+	          pinky-connectors
+	          extra-connectors
+	          connectors
+	          inner-connectors
+	          thumb-type
+	          thumb-connector-type
+	          case-walls
+	          thumbcaps-fill-type
+	          caps-fill
+	          screw-insert-outers)
+	        ;(translate [0 0 -10] screw-insert-screw-holes)
+	        ))))
+	)
+)
+
 (spit "things/right-plate-laser.scad"
       (write-scad
        (cut
-        (translate [0 0 -0.1]
+        (translate [0 2 -0.1]
                    (difference (union case-walls
                                       screw-insert-outers)
                                (translate [0 0 -10] screw-insert-screw-holes))))))
