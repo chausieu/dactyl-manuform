@@ -25,7 +25,7 @@
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 4))            ; or, change this for more precise tenting control
 
-(def switch-type 1)							;;;0= box, 1=cherry, 2= Alps, 3=hotswapbox 
+(def switch-type 3)							;;;0= box, 1=cherry, 2= Alps, 3=hotswapbox 
 
 (def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
@@ -922,8 +922,10 @@
    (thumb-1x-layout (rotate (/ π 2) [0 0 0] single-plate))
    (thumb-tr-place (rotate (/ π 2) [0 0 1] single-plate))
    (thumb-tr-place larger-plate)
-   (thumb-tl-place (rotate (/ π 2) [0 0 1] single-plate))
-   (thumb-tl-place larger-plate-half)))
+   ; (thumb-tl-place (rotate (/ π 2) [0 0 1] single-plate))
+   (thumb-tl-place single-plate)
+    (thumb-tl-place larger-plate-half)
+   ))
 
 (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.1) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.1) post-adj) 0] web-post))
