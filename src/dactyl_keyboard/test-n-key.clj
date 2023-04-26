@@ -316,7 +316,7 @@
                ]
            (->> single-plate
 
-           		(translate [0 0.2 -0.75])
+           		(translate [0 0.3 -0.75])
                  (rotate (deg2rad 5)[1 0 0])
                 (key-place column row)
                 )
