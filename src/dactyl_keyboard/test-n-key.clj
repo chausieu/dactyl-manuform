@@ -22,7 +22,7 @@
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
-(def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
+(def centercol 0)                       ; controls left-right tilt / tenting (higher number is more tenting)
 ;(def tenting-angle (/ π 3.5))            ; or, change this for more precise tenting control
 (def tenting-angle 0)
 
@@ -48,7 +48,7 @@
 
 (def thumb-offsets [6 -3 2])
 
-(def keyboard-z-offset 0)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2()
+(def keyboard-z-offset 1)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2()
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 2.0)                  ; original= 0.5
