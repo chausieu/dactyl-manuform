@@ -439,12 +439,17 @@
                    (translate [0 0 (+ (/ web-thickness -2)
                                       plate-thickness)])))
 
+(def n-web-post (->> (cube 0.01 0.5 web-thickness)
+                   (translate [0 0 (+ (/ web-thickness -2)
+                                      plate-thickness)])))
+
 (def post-adj (/ post-size 2))
 (def web-post-tr (translate [(- (/ mount-width 1.95) post-adj) (- (/ mount-height 1.95) post-adj) 0] web-post))
 (def web-post-tl (translate [(+ (/ mount-width -1.95) post-adj) (- (/ mount-height 1.95) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
-(def web-post-n-key (translate [(- (/ mount-width 1.2) post-adj) (+ (/ mount-height -1.5) post-adj) 0] web-post))
+;(def web-post-n-key-br (translate [(- (/ 17.35 1.95) 0.05) (+ (/ 16.85 -1.95) 0.05) 0] n-web-post ))
+(def web-post-n-key-br (translate [8.847 (+ (/ 16.85 -1.95) 0.05) 0] n-web-post ))
 
 ; wide posts for 1.5u keys in the main cluster
 (if pinky-15u
@@ -508,13 +513,41 @@
             )
             )
 
-          (for [column (range 0 3)
-	             row (range 0 cornerrow)]
-	         (triangle-hulls
+;cornerrow = last row 
+
+ (for [column (range 0 2)
+               row (range 1 4)
+               :when (and (not= row 1)
+               				(not= row lastrow)
+               )
+         ]
+            
+               ( triangle-hulls
+               (key-place column row web-post-bl)
+                (key-place column row web-post-br)
+                (key-place column (inc row) web-post-tl)
+                (key-place column (inc row) web-post-tr)
+               )
+               )
+
+
+  (for [column (range 0 2)
+               row rows
+               :when (or
+               									(.contains [1] row)
+                     )
+               ]
+       
+	          (triangle-hulls
 	          (key-place column row web-post-bl)
-	          (key-place column row web-post-br)
-	        ;  (key-place column (inc row) web-post-tl)
-	          ;(union (rotate (deg2rad 5) [ 0 -1 0 ] (key-place column (inc row) web-post-tl)))
+	          ;(key-place column row web-post-br)
+              (key-place column row web-post-n-key-br)
+            (key-place column (inc row) web-post-tl)
+	         
+           
+           ; (union (rotate (deg2rad 5) [ 0 -1 0 ] (key-place column (inc row) web-post-tl)))
+
+
 	          (key-place column (inc row) web-post-tr)
 	          (rotate (deg2rad 6) [ 1 0 0 ])
 	          ))
