@@ -130,6 +130,41 @@
       top-nub-pair
       (rotate (/ π 2) [0 0 1])))))
 
+
+
+(def n-key
+  (let [top-wall (->> (cube (+ keyswitch-width 3.5) 2.5 (+ plate-thickness 0.5))
+                      (translate [0
+                                  (+ (/ 2.5 2) (/ keyswitch-height 2))
+                                  (- (/ plate-thickness 2) 0.25)]))
+        left-wall (->> (cube 1.8 (+ keyswitch-height 3) (+ plate-thickness 0.5))
+                       (translate [(+ (/ 1.8 2) (/ keyswitch-width 2))
+                                   0
+                                   (- (/ plate-thickness 2) 0.25)]))
+        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
+                      (rotate (/ π 2) [1 0 0])
+                      (translate [(+ (/ keyswitch-width 2)) 0 1])
+                      (hull (->> (cube 1.5 2.75 side-nub-thickness)
+                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                             0
+                                             (/ side-nub-thickness 2)])))
+                      (translate [0 0 (- plate-thickness side-nub-thickness)]))
+        plate-half (union top-wall left-wall (if create-side-nubs? (with-fn 100 side-nub)))
+        top-nub (->> (cube 5 5 retention-tab-hole-thickness)
+                     (translate [(+ (/ keyswitch-width 2.5)) 0 (- (/ retention-tab-hole-thickness 2) 0.5)]))
+        top-nub-pair (union top-nub
+                            (->> top-nub
+                                 (mirror [1 0 0])
+                                 (mirror [0 1 0])))]
+    (difference
+     (union plate-half
+            (->> plate-half
+                 (mirror [1 0 0])
+                 (mirror [0 1 0])))
+     (->>
+      top-nub-pair
+      (rotate (/ π 2) [0 0 1])))))
+
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
@@ -296,28 +331,40 @@
          ;        )
          ;   )
 
-         (for [column (range 1 2)
-               row rows
+         (for [column (range 0 2)
+               row (range 1 4)
                :when (and (not= row 2)
-               					     (not= row lastrow)
+               				(not= row lastrow)
                )
          ](
          	->> single-plate
          	(key-place column row)
          ))
 
+          (for [column (range 0 1)
+               row rows
+               :when (or
+               			(.contains [2] row)
+                     )
+               ]
+           (->> single-plate
+                    	(key-place column row)
 
-;;;;;; KEY N
+                )
+           )
+
+
+;;;;;;n-key
          (for [column (range 1 2)
                row rows
                :when (or
                									(.contains [2] row)
                      )
                ]
-           (->> single-plate
+           (->> n-key
 
-           		(translate [0 0.3 -0.75])
-                 (rotate (deg2rad 5)[1 0 0])
+           		(translate [0 1.2 -1])
+                 (rotate (deg2rad 7)[1 0 0])
                 (key-place column row)
                 )
            )
@@ -397,6 +444,7 @@
 (def web-post-tl (translate [(+ (/ mount-width -1.95) post-adj) (- (/ mount-height 1.95) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
+(def web-post-n-key (translate [(- (/ mount-width 1.2) post-adj) (+ (/ mount-height -1.5) post-adj) 0] web-post))
 
 ; wide posts for 1.5u keys in the main cluster
 (if pinky-15u
@@ -465,11 +513,21 @@
 	         (triangle-hulls
 	          (key-place column row web-post-bl)
 	          (key-place column row web-post-br)
-	          (key-place column (inc row) web-post-tl)
+	        ;  (key-place column (inc row) web-post-tl)
 	          ;(union (rotate (deg2rad 5) [ 0 -1 0 ] (key-place column (inc row) web-post-tl)))
 	          (key-place column (inc row) web-post-tr)
 	          (rotate (deg2rad 6) [ 1 0 0 ])
 	          ))
+
+          ;;   (for [column (range 1 2)
+	        ;;      row (range 2 2)]
+	        ;;  (triangle-hulls
+	         
+	        ;;   (key-place column row web-post-n-key)
+          ;;   	 (rotate (deg2rad 6) [ 1 0 0 ])
+
+	        ;;   ))
+
 
           ;; Diagonal connections
           (for [column (range 0 (dec 3))
@@ -1892,7 +1950,7 @@
                      )
                    (translate [0 0 -20] (cube 350 350 40))))
 
-(spit "things/right.scad"
+(spit "things/test-n-key.scad"
       (write-scad model-right))
 
 (spit "things/left.scad"
