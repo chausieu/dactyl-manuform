@@ -25,6 +25,7 @@
 (def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 4))            ; or, change this for more precise tenting control
 
+(def switch-type 3)							;;;0= box, 1=cherry, 2= Alps, 3=hotswapbox 
 
 (def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
@@ -129,6 +130,303 @@
      (->>
       top-nub-pair
       (rotate (/ π 2) [0 0 1])))))
+
+
+;;;;;;;;;;;;;;;;;
+;; Switch Hole ;;
+;;;;;;;;;;;;;;;;;
+(def keyswitch-height 14.15) ;; Was 14.1, then 14.25		
+(def keyswitch-width 14.65);Nub side original 14.5 last 14.8----14.65 works for both.  box slightly loose
+
+(def cherry-keyswitch-height 14.4) ;; Was 14.1, then 14.25
+(def cherry-keyswitch-width 14.4) ;; TODO derek why was this increased????
+
+(def alps-keyswitch-height 12.9) ;; Was 14.1, then 14.25
+(def alps-keyswitch-width 15.5)
+(def alps-width 15.55)
+(def alps-notch-width 15.48)
+(def alps-notch-height 1)
+(def alps-height 12.85)
+
+
+(def use-hotswap true)
+(def north-facing true)
+(def LED-holder false)
+(def mirror-internals-for-left false) ;false=right hotswap, true=left hotswap TODO derek lazy way to create left and right with correct hot swap holes
+
+(def plate-thickness 5) ;; default 4 to be slightly thicker than case, 5 for hotswap
+(def swap-z          3) ; "thickness" hotswap holder that doesn't protrude through to underside of switch, can go lower, 2mm still grips the hot-swap holder, but it depends how good your 3d printer, filament, tuning, and support settings are
+(def web-thickness   (if use-hotswap (+ plate-thickness swap-z) plate-thickness)) ;; 0.85 or swap-z, previous magic number used to be 3.5
+
+(def mount-width (+ keyswitch-width 3))
+(def mount-height (+ keyswitch-height 3))
+
+(def holder-x mount-width)
+(def holder-thickness    (/ (- holder-x keyswitch-width) 2))
+(def holder-y            (+ keyswitch-height (* holder-thickness 2)))
+
+(def square-led-size     6)
+
+(def hotswap-holder
+  (let [
+        ; irregularly shaped hot swap holder
+        ; ___________
+        ;| |_______| |  hotswap offset from out edge of holder with room to solder
+        ;|_|_O__  \  |  hotswap pin
+        ;|      \O_|_|  hotswap pin
+        ;|  o  O  o  |  fully supported friction holes
+        ;| _________ |   
+        ;||_________||  space for LED under SMD or transparent switches
+        ;
+        ; can be be described as having two sizes in the y dimension depending on the x coordinate        
+        swap-x              holder-x
+        swap-y              (if (or (> 11.5 holder-y) LED-holder) holder-y 11.5) ; should be less than or equal to holder-y
+        swap-offset-x       0
+        swap-offset-y       (/ (- holder-y swap-y) 2)
+        swap-offset-z       (* (/ swap-z 2) -1) ; the bottom of the hole. 
+        swap-holder         (->> (cube swap-x swap-y swap-z)
+                                 (translate [swap-offset-x 
+                                             swap-offset-y
+                                             swap-offset-z]))
+        hotswap-x           holder-x
+        hotswap-x2          (* (/ holder-x 3) 1.95)
+        hotswap-x3          (/ holder-x 4)
+        hotswap-y1          4.3 ;first y-size of kailh hotswap holder
+        hotswap-y2          6.2 ;second y-size of kailh hotswap holder
+        hotswap-z           (+ swap-z 0.5) ;thickness of kailn hotswap holder + some margin of printing error (0.5mm)
+        hotswap-cutout-1-x-offset 0.01
+        hotswap-cutout-2-x-offset (* (/ holder-x 4.5) -1)
+        hotswap-cutout-3-x-offset (- (/ holder-x 2)   (/ hotswap-x3 2))
+        hotswap-cutout-4-x-offset (- (/ hotswap-x3 2) (/ holder-x 2))
+        hotswap-cutout-led-x-offset 0
+        hotswap-cutout-1-y-offset 4.95
+        hotswap-cutout-2-y-offset 4
+        hotswap-cutout-3-y-offset (/ holder-y 2)
+        hotswap-cutout-led-y-offset -6
+        hotswap-cutout-z-offset -2.6
+        hotswap-cutout-1    (->> (cube hotswap-x hotswap-y1 hotswap-z)
+                                 (translate [hotswap-cutout-1-x-offset 
+                                             hotswap-cutout-1-y-offset 
+                                             hotswap-cutout-z-offset]))
+        hotswap-cutout-2    (->> (cube hotswap-x2 hotswap-y2 hotswap-z)
+                                 (translate [hotswap-cutout-2-x-offset 
+                                             hotswap-cutout-2-y-offset 
+                                             hotswap-cutout-z-offset]))
+        hotswap-cutout-3    (->> (cube hotswap-x3 hotswap-y1 hotswap-z)
+                                 (translate [ hotswap-cutout-3-x-offset
+                                              hotswap-cutout-3-y-offset
+                                              hotswap-cutout-z-offset]))
+        hotswap-cutout-4    (->> (cube hotswap-x3 hotswap-y1 hotswap-z)
+                                 (translate [ hotswap-cutout-4-x-offset
+                                              hotswap-cutout-3-y-offset
+                                              hotswap-cutout-z-offset]))
+        hotswap-led-cutout  (->> (cube square-led-size square-led-size 10)
+                                 (translate [ hotswap-cutout-led-x-offset
+                                              hotswap-cutout-led-y-offset
+                                              hotswap-cutout-z-offset]))
+
+        center-hole      (->> (cylinder (/ 4.1 2) 10)
+                                 (with-fn 12))
+        plus-hole           (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [-3.81 2.54 0]))
+        minus-hole          (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [2.54 5.08 0]))
+        friction-hole       (->> (cylinder (/ 1.95 2) 10)
+                                 (with-fn 8))
+        friction-hole-right (translate [5 0 0] friction-hole)
+        friction-hole-left  (translate [-5 0 0] friction-hole)
+       ]
+      (difference swap-holder
+                  center-hole
+                  plus-hole
+                  minus-hole
+                  friction-hole-left
+                  friction-hole-right
+                  hotswap-cutout-1
+                  hotswap-cutout-2
+                  hotswap-cutout-3
+                  hotswap-cutout-4
+                  hotswap-led-cutout)
+  )
+)
+
+(def switch-teeth-cutout
+  (let [
+        ; cherry, gateron, kailh switches all have a pair of tiny "teeth" that stick out
+        ; on the top and bottom, this gives those teeth somewhere to press into
+        teeth-x        4.5
+        teeth-y        0.75
+        teeth-z        1.75
+        teeth-x-offset 0
+        teeth-y-offset (+ (/ keyswitch-height 2) (/ teeth-y 2.01))
+        teeth-z-offset (- plate-thickness 1.95)
+       ]
+      (->> (cube teeth-x teeth-y teeth-z)
+           (translate [teeth-x-offset teeth-y-offset teeth-z-offset])
+      )
+  )
+)
+
+;derek's kalih box compatible with hot-swap and north led support
+(def box-hotswap-plate
+  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                      (translate [0
+                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                  (/ plate-thickness 2)]))
+        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                   0
+                                   (/ plate-thickness 2)]))
+        side-nub (->> (binding [*fn* 30] (cube 0.7 0.85 8.75));last number is nub size.  4.75 works for box
+               (rotate (/ π 2) [1 0 0])
+               (translate [(+ (/ keyswitch-width 2)) 0 3.1]) ;last number control nub height
+               (hull (->> (cube 1.5 2.75 1)
+                          (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                      0
+                                      (/ plate-thickness 1.15)])))
+							 );2nd number controls slant height position
+        plate-half (difference (union top-wall left-wall (with-fn 100 side-nub))
+                               switch-teeth-cutout
+                  ) 
+        plate (difference (union plate-half
+                                 (->> plate-half
+                                      (mirror [1 0 0])
+                                      (mirror [0 1 0]))
+                                 (if use-hotswap
+                                       (if north-facing
+                                           (->> hotswap-holder
+                                                (mirror [1 0 0])
+                                                (mirror [0 1 0])
+                                           )
+                                           hotswap-holder
+                                       )
+                                     ()
+                                  )))
+       ]
+       (->> (if mirror-internals-for-left
+                (->> plate (mirror [1 0 0]))
+                plate
+            )
+       )
+  )
+)
+
+;kalih box
+(def box-single-plate
+  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                      (translate [0
+                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                  (/ plate-thickness 2)]))
+        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                   0
+                                   (/ plate-thickness 2)]))
+       side-nub (->> (binding [*fn* 30] (cube 0.7 0.85 8.75));last number is nub size.  4.75 works for box
+                      (rotate (/ π 2) [1 0 0])
+                      (translate [(+ (/ keyswitch-width 2)) 0 3.1]) ;last number control nub height
+                      (hull (->> (cube 1.5 2.75 1)
+                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                             0
+                                             (/ plate-thickness 1.15)])))
+											 );2nd number controls slant height position
+        plate-half (union top-wall left-wall (with-fn 100 side-nub))]
+    (union plate-half
+           (->> plate-half
+                (mirror [1 0 0])
+                (mirror [0 1 0])))))
+                
+;Cherry
+(def cherry-single-plate
+  (let [top-wall (->> (cube (+ cherry-keyswitch-width 3) 1.5 plate-thickness)
+                      (translate [0
+                                  (+ (/ 1.5 2) (/ cherry-keyswitch-height 2))
+                                  (/ plate-thickness 2)]))
+        left-wall (->> (cube 1.6 (+ cherry-keyswitch-height 3) plate-thickness)
+                       (translate [(+ (/ 1.5 2) (/ cherry-keyswitch-width 2))
+                                   0
+                                   (/ plate-thickness 2)]))
+        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
+                      (rotate (/ π 2) [1 0 0])
+                      (translate [(+ (/ cherry-keyswitch-width 2)) 0 1])
+                      (hull (->> (cube 1.5 2.75 plate-thickness)
+                                 (translate [(+ (/ 1.5 2) (/ cherry-keyswitch-width 2))
+                                             0
+                                             (/ plate-thickness 2)]))))
+        plate-half (union top-wall left-wall (with-fn 100 side-nub))]
+    (union plate-half
+           (->> plate-half
+                (mirror [1 0 0])
+                (mirror [0 1 0])))))
+;Matias
+(def Matias-single-plate
+  (let [top-wall (->> (cube (+ alps-keyswitch-width 3) 2.2 plate-thickness)
+                      (translate [0
+                                  (+ (/ 2.4 2) (/ alps-height 2));;changed the first number from 2.2 to 2.4 for thumb cluster
+                                  (/ plate-thickness 2)]))
+        left-wall (union (->> (cube 1.5 (+ alps-keyswitch-height 3) plate-thickness)
+                              (translate [(+ (/ 1.5 2) (/ 15.6 2))
+                                          0
+                                          (/ plate-thickness 2)]))
+                         (->> (cube 1.5 (+ alps-keyswitch-height 3) 1.0)
+                              (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
+                                          0
+                                          (- plate-thickness
+                                             (/ alps-notch-height 2))]))
+                         )
+        plate-half (union top-wall left-wall)]
+    (union plate-half
+           (->> plate-half
+                (mirror [1 0 0])
+                (mirror [0 1 0])))))
+
+(def single-plate-rotated
+  (let [top-wall (->> (cube (+ alps-keyswitch-height 3) 1.5 plate-thickness)
+                      (translate [0
+                                  (+ (/ 1.5 2) (/ alps-keyswitch-width 2))
+                                  (/ plate-thickness 2)]))
+        left-wall (->> (cube 2.8 (+ alps-keyswitch-width 3) plate-thickness)
+                       (translate [(+ (/ 2.8 2) (/ alps-keyswitch-height 2))
+                                   0
+                                   (/ plate-thickness 2)]))
+      
+        plate-half (union top-wall left-wall )]
+    (union plate-half
+           (->> plate-half
+                (mirror [1 0 0])
+                (mirror [0 1 0])))))			
+				
+(def ergo-single-plate
+  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+                      (translate [0
+                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                  (/ plate-thickness 2)]))
+        left-wall (->> (cube 6.5 (+ keyswitch-height 3) plate-thickness)
+                       (translate [(+ (/ 6.5 2) (/ keyswitch-width 2))
+                                   0
+                                   (/ plate-thickness 2)]))
+  side-nub (->> (binding [*fn* 30] (cube 0.7 0.85 8.75));last number is nub size.  4.75 works for box
+                      (rotate (/ π 2) [1 0 0])
+                      (translate [(+ (/ keyswitch-width 2)) 0 3.1]) ;last number control nub height
+                      (hull (->> (cube 1.5 2.75 1)
+                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                                             0
+                                             (/ plate-thickness 1.15)])))
+											 );2nd number controls slant height position
+        plate-half (union top-wall left-wall (with-fn 100 side-nub))]
+    (union plate-half
+           (->> plate-half
+                (mirror [1 0 0])
+                (mirror [0 1 0])))))	
+				
+(def single-plate
+		(if (== switch-type 0) box-single-plate 
+			(if (== switch-type 1) cherry-single-plate 
+				(if (== switch-type 2) Matias-single-plate 
+					(if (== switch-type 3) box-hotswap-plate ))))
+	)
+
 
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
@@ -625,8 +923,10 @@
    (thumb-1x-layout (rotate (/ π 2) [0 0 0] single-plate))
    (thumb-tr-place (rotate (/ π 2) [0 0 1] single-plate))
    (thumb-tr-place larger-plate)
-   (thumb-tl-place (rotate (/ π 2) [0 0 1] single-plate))
-   (thumb-tl-place larger-plate-half)))
+   ; (thumb-tl-place (rotate (/ π 2) [0 0 1] single-plate))
+   (thumb-tl-place single-plate)
+    (thumb-tl-place larger-plate-half)
+   ))
 
 (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.1) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.1) post-adj) 0] web-post))

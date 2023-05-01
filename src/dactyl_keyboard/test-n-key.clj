@@ -22,9 +22,9 @@
 (def α (/ π 12))                        ; curvature of the columns
 (def β (/ π 36))                        ; curvature of the rows
 (def centerrow (- nrows 3))             ; controls front-back tilt
-(def centercol 4)                       ; controls left-right tilt / tenting (higher number is more tenting)
+(def centercol 0)                       ; controls left-right tilt / tenting (higher number is more tenting)
 ;(def tenting-angle (/ π 3.5))            ; or, change this for more precise tenting control
-(def tenting-angle (/ π 8))
+(def tenting-angle 0)
 
 (def pinky-15u false)                   ; controls whether the outer column uses 1.5u keys
 (def first-15u-row 0)                   ; controls which should be the first row to have 1.5u keys on the outer column
@@ -48,7 +48,7 @@
 
 (def thumb-offsets [6 -3 2])
 
-(def keyboard-z-offset 9)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2()
+(def keyboard-z-offset 1)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2()
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 2.0)                  ; original= 0.5
@@ -69,7 +69,7 @@
 
 ; If you use Cherry MX or Gateron switches, this can be turned on.
 ; If you use other switches such as Kailh, you should set this as false
-(def create-side-nubs? true)
+(def create-side-nubs? false)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -316,8 +316,8 @@
                ]
            (->> single-plate
 
-           					 (translate [0 0.5 -1])
-                 (rotate (deg2rad 8)[1 0 0])
+           		(translate [0 0.3 -0.75])
+                 (rotate (deg2rad 5)[1 0 0])
                 (key-place column row)
                 )
            )

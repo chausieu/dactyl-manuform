@@ -16,12 +16,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@
-;;;;;;;;;Wrist rest;;;;;;;;;;		
+;;;;;;;;;Wrist rest;;;;;;;;;;
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@
-(def wrist-rest-on 1) 						;;0 for no rest 1 for a rest connection cut out in bottom case		
+(def wrist-rest-on 1) 						;;0 for no rest 1 for a rest connection cut out in bottom case
 (def wrist-rest-back-height 35)				;;height of the back of the wrist rest--Default 34
 (def wrist-rest-angle 20) 				 ;;angle of the wrist rest--Default 20
-(def wrist-rest-rotation-angle 9)			;;0 default The angle in counter clockwise the wrist rest is at		
+(def wrist-rest-rotation-angle 9)			;;0 default The angle in counter clockwise the wrist rest is at
 (def wrist-rest-ledge 3.5)					;;The height of ledge the silicone wrist rest fits inside
 (def wrist-rest-y-angle 0)					;;0 Default.  Controls the wrist rest y axis tilt (left to right)
 
@@ -34,16 +34,16 @@
 (def wrist_brse_position_x -1)
 
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@
-;;;;;;;;;bottom cover;;;;;;;;;;		
+;;;;;;;;;bottom cover;;;;;;;;;;
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@
-(def bottom-cover 1)						;;0= no cover  	1=cover 
+(def bottom-cover 1)						;;0= no cover  	1=cover
 
 
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@
-;;;;;;;;;random;;;;;;;;;;		
+;;;;;;;;;random;;;;;;;;;;
 ;@@@@@@@@@@-@@@@@@@@@@@@@@@@
 ;;;0= box 1=cherry 2= Alps
-(def switch-type 0)
+(def switch-type 1)
 
 (def nrows 5)
 (def ncols 6)
@@ -58,7 +58,7 @@
 (def centercol 3)                       ;default 3 controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ (* π 15) 180))            ;default 15 or, change this for more precise tenting control
 ;(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
-(def column-style 
+(def column-style
   (if (> nrows 5) :orthographic :fixed))  ; options include :standard, :orthographic, and :fixed
 ; (def column-style :fixed)
 
@@ -78,15 +78,15 @@
 (def wall-xy-offset (if (> nrows 5) 5 7))  ; options include :standard, :orthographic, and :fixed)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 3.5)                  ; wall thickness parameter; originally 5
 
-;; Settings for column-style == :fixed 
+;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 ;; Fixed-z overrides the z portion of the column ofsets above.
 ;; NOTE: THIS DOESN'T WORK QUITE LIKE I'D HOPED.
-(def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])  
+(def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
 (def fixed-x [-41.5 -22.5 0 20.3 41.4 65.5 89.6])  ; relative to the middle finger
-(def fixed-z [12.1    8.3 0  5   10.7 14.5 17.5])  
-(def fixed-tenting (deg2rad 0))  
+(def fixed-z [12.1    8.3 0  5   10.7 14.5 17.5])
+(def fixed-tenting (deg2rad 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -143,7 +143,7 @@
            (->> plate-half
                 (mirror [1 0 0])
                 (mirror [0 1 0])))))
-                
+
 ;Cherry
 (def cherry-single-plate
   (let [top-wall (->> (cube (+ cherry-keyswitch-width 3) 1.5 plate-thickness)
@@ -197,17 +197,17 @@
                        (translate [(+ (/ 2.8 2) (/ alps-keyswitch-height 2))
                                    0
                                    (/ plate-thickness 2)]))
-      
+
         plate-half (union top-wall left-wall )]
     (union plate-half
            (->> plate-half
                 (mirror [1 0 0])
-                (mirror [0 1 0])))))			
-				
-				
+                (mirror [0 1 0])))))
+
+
 (def single-plate
-		(if (== switch-type 0) (->> box-single-plate(rotate (/ π 2) [0 0 1])) 
-		(if (== switch-type 1) cherry-single-plate 
+		(if (== switch-type 0) (->> box-single-plate(rotate (/ π 2) [0 0 1]))
+		(if (== switch-type 1) cherry-single-plate
 		(if (== switch-type 2) Matias-single-plate )))
 	)
 ;;;;;;;;;;;;;;;;
@@ -253,6 +253,152 @@
                         (translate [0 0 (+ 5 plate-thickness)])
                         (color [240/255 223/255 175/255 1])))})
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+;@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+;;quality settings;;;;;;;;;;;
+;@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+(def wall-step 0.2)
+(def wall-sphere-n 30) ;;30 for high quality Sphere resolution, lower for faster renders mainly present on case edge top.  can effect wall thickness
+(def circle_facets 100)  ;;100 for high quality
+(def sla_tolerance 10)
+(def hot_swappable 1)
+
+;@@@@@@@@@@@@@@@@@@@@@
+;switch hole code;;;;;
+;@@@@@@@@@@@@@@@@@@@@@
+
+
+(def Kalih_features ;;Contains the solder points and the protruding circles
+			(union
+			(->> (union
+					(->> (cylinder 1.65 1.5)(with-fn circle_facets)(translate [0 0 0]));;increased diameter by .02
+					(difference	;;this is for making the slope for the left hole.
+						(->> (cylinder 1.65 4)(with-fn circle_facets)(rotate (deg2rad 35) [1 0 0]));;increased diameter by .02
+						(->>(cube 4 4 4)(translate [0 -2 0])))
+					(->> (cylinder 1.6 1.5)(with-fn circle_facets)(translate [6.35 2.540 0]))
+					(->>(difference	;;this is for making the slope for the right hole.
+						(->> (cylinder 1.6 3.2)(with-fn circle_facets))
+						(->>(cube 4 4 4)(translate [0 -2 0])))
+						(rotate (deg2rad 15) [1 0 0])(translate [6.35 2.540 0.5]))
+				) (translate [-3.17 -1.27 1.65]))
+				(->> (cube 2.7 1.9 1.8)(translate [6.8 1.5 0])) ;right solder point on kalih socket
+				(->> (cube 2.7 1.9 1.8)(translate [-6.8 -1.5 0]));;left solder point
+				)
+		)
+
+(def kalih_socket
+	(difference
+		(union (cube 12 (+  sla_tolerance 6) ( + 1.825 sla_tolerance))
+		Kalih_features)
+		(->> (cube 3.7   4  3)(translate [4.1 (- -3.05 (/ sla_tolerance 2)) 0])) ;;		(->> (cube 3.2 3 3)(translate [4.1 -2.6 0]))
+))
+
+(def kalih_socket_thumbs
+	(difference
+		(union (cube 12 (+  sla_tolerance 6.3) ( + 2 sla_tolerance))
+		Kalih_features)
+		(->> (cube 3.7   4  3)(translate [4.1 (- -3.05 (/ sla_tolerance 2)) 0])) ;;		(->> (cube 3.2 3 3)(translate [4.1 -2.6 0]))
+))
+
+(def kalih_tab
+	(union
+		(->> (difference
+				(->>( cube 9 2.7 1.5)(translate [0 2.95 -2.25]) )
+				(->> (cube 9.1 1 2.5)(translate [0 0.9 -2.45])(rotate (deg2rad 15) [1 0 0]))  ;decreased translate y by ;;controls the clip in part of the kalih socket holder overhang
+		))
+		(difference
+			(->>( cube 3.8 2.3 1.)(translate [-3.6 -4.1 -2.0]) )  ;;to prevent cracking decreased cube y from 2.3 to 2
+			;(->> (cube 4.8 1.8 0.9)(rotate (deg2rad 55) [1 0 0])(translate [-3.6 -3.25 -2.6]))
+)))
+(def kalih_tab_thumb
+	(union
+		(->> (difference
+				(->>( cube 9 2.7 1.5)(translate [0 2.95 -2.25]) )
+				(->> (cube 9.1 1 2.5)(translate [0 1.1 -2.45])(rotate (deg2rad 15) [1 0 0]))  ;decreased translate y by ;;controls the clip in part of the kalih socket holder overhang
+		))
+		(difference
+			(->>( cube 3.8 2.7 1.)(translate [-3.6 -4. -2.0]) )  ;;to prevent cracking decreased cube y from 2.3 to 2
+			;(->> (cube 4.8 1.8 0.9)(rotate (deg2rad 55) [1 0 0])(translate [-3.6 -3.25 -2.6]))
+)))
+
+(def kalih_cutout
+	(->>(union
+			(difference
+				(union
+					(->> (cube 11 17.6 3.2)(translate [ 0 -4.5 0]))		;main box that the switch is cut from
+					(->>(cube 17.4 17.6 1)(translate [ 0.7 -4.5 1.1])) ;bottom cover that covers the remainder of the bottom of the switch hole
+					kalih_tab
+				)
+				#_(->> (cube 11 9.4 3)(translate [ 0 -0.4 0]))
+				(->> kalih_socket(translate [-0.4 -0.6 -0.71]))
+				(->> (cylinder (+ (/ sla_tolerance 2) 2.1) 4)(with-fn circle_facets)(translate [0.3 -4.5 0]))
+				(->>(cube 20 10 5)(translate [0 -13 0]))    ;;This cuts out part of the bottom cover.  Used to ensure drainage when SLA printing.
+		))
+	(translate [-0.7 4.5 -1]))
+)
+
+(def kalih_cutout_thumb
+	(->>(union
+			(difference
+				(union
+					(->> (cube 11 17.6 3.2)(translate [ 0 -4.5 0]))		;main box that the switch is cut from
+					(->>(cube 17.4 17.6 1)(translate [ 0.7 -4.5 1.1])) ;bottom cover that covers the remainder of the bottom of the switch hole
+					kalih_tab_thumb
+				)
+				#_(->> (cube 11 9.4 3)(translate [ 0 -0.4 0]))
+				(->> kalih_socket_thumbs(translate [-0.4 -0.6 -0.71]))
+				(->> (cylinder (+ (/ sla_tolerance 2) 2.1) 4)(with-fn circle_facets)(translate [0.3 -4.5 0]))
+				(->>(cube 20 10 5)(translate [0 -13 0]))    ;;This cuts out part of the bottom cover.  Used to ensure drainage when SLA printing.
+		))
+	(translate [-0.7 4.5 -1]))
+)
+
+
+(def MX_Clone_hole_hotswap  ;;Special hole for hotswap holes because the box has to be a bit bigger so it makes contact with the kalih cutout.
+	(->>(difference
+		(union
+
+			(->>(cube 17.5, 17.6, 5)(translate [0 0 -0.9]))   ;;Main box that everything is cut from
+		)
+		(->>(cube 14.8, 13.8, 6)(translate [0 0 -1]) ) ;;Inner square cut out
+		(->>(cube 14.2, 15., 4.32)(translate [0, 0, -2])) ;;The buttom inner cut out.  This modifies the notch height
+		(->> (cube 3.7,15.,  6)(translate [(/ 8.5 2), 0, -1]));Left and right rectangle cut out.  Controls the width of notch
+		(->> (cube 3.7,15.,  6)(translate [(/ -8.5 2), 0, -1]))
+	)(translate [0, 0 4.]))
+)
+
+(def hotswap_hole_sla
+	(->>(union
+		MX_Clone_hole_hotswap
+		(->> kalih_cutout (translate [0 0 0]))
+	)(translate [0 0 0])(rotate (deg2rad 180) [0 0 1]))
+)
+
+(def hotswap_hole_sla_thumb
+	(->>(union
+		MX_Clone_hole_hotswap
+		(->> kalih_cutout_thumb (translate [0 0 0]))
+	)(rotate (deg2rad 180) [0 0 1]))
+
+)
+
+(def temp-single-plate
+	;(if (== hot_swappable 1) (->> (union (->> MX_Clone_hole(rotate (/ π 2) [0 0 1])) (->> kalih_cutout)(rotate (/ π 2) [0 0 1])))
+	(if (== hot_swappable 1) (->> hotswap_hole_sla (translate [0 0 -1.6]))
+	(if (== switch-type 1) cherry-single-plate
+	(if (== switch-type 2) Matias-single-plate
+	;(if (== switch-type 3) MX_Clone_hole)
+	))))
+
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -271,10 +417,10 @@
 (def column-base-angle (* β (- centercol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [column-angle (* β (- centercol column))   
+  (let [column-angle (* β (- centercol column))
         placed-shape (->> shape
                           (translate-fn [0 0 (- row-radius)])
-                          (rotate-x-fn  (* α (- centerrow row)))      
+                          (rotate-x-fn  (* α (- centerrow row)))
                           (translate-fn [0 0 row-radius])
                           (translate-fn [0 0 (- column-radius)])
                           (rotate-y-fn  column-angle)
@@ -283,7 +429,7 @@
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- row-radius)])
-                                (rotate-x-fn  (* α (- centerrow row)))      
+                                (rotate-x-fn  (* α (- centerrow row)))
                                 (translate-fn [0 0 row-radius])
                                 (rotate-y-fn  column-angle)
                                 (translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
@@ -292,33 +438,33 @@
                                 (rotate-y-fn  (nth fixed-angles column))
                                 (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
                                 (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-                                (rotate-x-fn  (* α (- centerrow row)))      
+                                (rotate-x-fn  (* α (- centerrow row)))
                                 (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
                                 (rotate-y-fn  fixed-tenting)
                                 (translate-fn [0 (second (column-offset column)) 0])
                                 )]
     (->> (case column-style
-          :orthographic placed-shape-ortho 
+          :orthographic placed-shape-ortho
           :fixed        placed-shape-fixed
                         placed-shape)
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
 
 (defn key-place [column row shape]
-  (apply-key-geometry translate 
-    (fn [angle obj] (rotate angle [1 0 0] obj)) 
-    (fn [angle obj] (rotate angle [0 1 0] obj)) 
+  (apply-key-geometry translate
+    (fn [angle obj] (rotate angle [1 0 0] obj))
+    (fn [angle obj] (rotate angle [0 1 0] obj))
     column row shape))
 
-(defn rotate-around-x [angle position] 
-  (mmul 
+(defn rotate-around-x [angle position]
+  (mmul
    [[1 0 0]
     [0 (Math/cos angle) (- (Math/sin angle))]
     [0 (Math/sin angle)    (Math/cos angle)]]
    position))
 
-(defn rotate-around-y [angle position] 
-  (mmul 
+(defn rotate-around-y [angle position]
+  (mmul
    [[(Math/cos angle)     0 (Math/sin angle)]
     [0                    1 0]
     [(- (Math/sin angle)) 0 (Math/cos angle)]]
@@ -404,7 +550,7 @@
 ;; Thumbs ;;
 ;;;;;;;;;;;;
 
-(def thumborigin 
+(def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
          thumb-offsets))
 ; (pr thumborigin)
@@ -536,7 +682,7 @@
              (thumb-mr-place web-post-tr)
              (thumb-tr-place thumb-post-bl)
              (thumb-mr-place web-post-br)
-             (thumb-tr-place thumb-post-br)) 
+             (thumb-tr-place thumb-post-br))
       (triangle-hulls    ; top two to the main keyboard, starting on the left
              (thumb-tl-place thumb-post-tl)
              (key-place 0 cornerrow web-post-bl)
@@ -559,7 +705,7 @@
              (key-place 3 lastrow web-post-tr)
              (key-place 3 cornerrow web-post-br)
              (key-place 4 cornerrow web-post-bl))
-      (triangle-hulls 
+      (triangle-hulls
              (key-place 1 cornerrow web-post-br)
              (key-place 2 lastrow web-post-tl)
              (key-place 2 cornerrow web-post-bl)
@@ -567,7 +713,7 @@
              (key-place 2 cornerrow web-post-br)
              (key-place 3 cornerrow web-post-bl)
              )
-      (triangle-hulls 
+      (triangle-hulls
              (key-place 3 lastrow web-post-tr)
              (key-place 3 lastrow web-post-br)
              (key-place 3 lastrow web-post-tr)
@@ -618,8 +764,8 @@
       (place2 (translate (wall-locate3 dx2 dy2) post2)))
       ))
 
-(defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2] 
-  (wall-brace (partial key-place x1 y1) dx1 dy1 post1 
+(defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
+  (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 
 (def case-walls
@@ -698,7 +844,7 @@
      (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
      (thumb-tl-place thumb-post-tl))
   ))
-  
+
   ;;### Case wall cutout ####
 (def wall-thickness-cutout 25)
 (defn wall-locate1-cutout [dx dy] [(* dx wall-thickness-cutout) (* dy wall-thickness-cutout) -1])
@@ -722,8 +868,8 @@
       (place2 (translate (wall-locate3-cutout dx2 dy2) post2)))
       ))
 
-(defn key-wall-brace-cutout [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2] 
-  (wall-brace (partial key-place x1 y1) dx1 dy1 post1 
+(defn key-wall-brace-cutout [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
+  (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 (def case-wall-cutout
   (union
@@ -801,8 +947,8 @@
      (thumb-ml-place (translate (wall-locate3-cutout -0.3 1) web-post-tr))
      (thumb-tl-place thumb-post-tl))
   ))
-  
-    
+
+
   ;;### Case wall cutout  end ####
 
 (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
@@ -813,7 +959,7 @@
                   (difference rj9-cube
                               (union (translate [0 2 0] (cube 10.78  9 18.38))
                                      (translate [0 0 5] (cube 10.78 13  5))))))
-									 
+
 (def original_usb_holder_position (key-position 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
 (def original_usb_holder_size [6.5 10.0 13.6])
 (def original_usb_holder_thickness 4)
@@ -823,34 +969,34 @@
 (def original_usb_holder_hole
     (->> (apply cube original_usb_holder_size)
          (translate [(first original_usb_holder_position) (second original_usb_holder_position) (/ (+ (last original_usb_holder_size) original_usb_holder_thickness) 2)])))
-			 
+
 
 (def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 4.9 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
 
-(def usb-holder-size [5.5 33.34 18.4 ])	;;5.5 33.34 18.4 
-(def usb-hole-size [9.5 33.34 18.4  ]) ;;9.5 33.34 18.4 
+(def usb-holder-size [5.5 33.34 18.4 ])	;;5.5 33.34 18.4
+(def usb-hole-size [9.5 33.34 18.4  ]) ;;9.5 33.34 18.4
 #_(def usb-holder-size [5.5 27.8 23.4 ])	;;Dimensions for adafruit feather
 #_(def usb-hole-size [9.5 33.34 23.4  ])  ;Dimensions for adafruit feather
-(def usb-hole-size-left [9.5 35.6 8.0 ]) ;;9.5 35.6 8.0 
+(def usb-hole-size-left [9.5 35.6 8.0 ]) ;;9.5 35.6 8.0
 (def usb-hole-size-right [6 35.6 10.0 ]) ;;6 35.6 10.0
 (def usb-holder-thickness 5)
 (def usb-holder
     (->> (difference
 
-	(cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness) 
+	(cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness)
 
 	 )
 
 	; (cube 5 5 5)
      ) ; (apply cube usb-hole-size))
-	
+
 
 	(translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
 		; (rotate -0.6 [0 0 1])
 		;( translate [(- (first usb-holder-position) 10) (+ (second usb-holder-position) 4) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
 		))
-		 
-		 
+
+
 (def usb-holder-hole
     (->>
 		(union
@@ -861,7 +1007,7 @@
 		 (->>(apply cube usb-hole-size-right)
          (translate [(+ (first usb-holder-position ) 2) (+ (second usb-holder-position) 10) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
 		 )))
-		 
+
 (def trrs-holder-position (key-position 2. 1 (map + (wall-locate1 0 (+ 7.8 (* 0.13 nrows))) [0 (/ mount-height 2) 0])))
 (def trrs-holder-size [7.4 13.6 10.3 ])
 (def trrs-hole-size [7.4 14.6 10.3 ])
@@ -872,13 +1018,13 @@
 (def trrs-holder
   (->> (difference (cube (+ (first trrs-holder-size) trrs-holder-thickness) (+ (second trrs-holder-size) trrs-holder-thickness) (+ (last trrs-holder-size) trrs-holder-thickness) )
 		(->>(->> (cube 25 50 5)(rotate (/ 1.5708 -2) [1 0 0]))(translate [2 (+ 5 nrows) 5]))
-  )      
+  )
 	  (translate [(first trrs-holder-position) (second trrs-holder-position) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)])
 ))
 ;(def trrs-holder
  ;   (->> (cube (+ (first usb-holder-size) usb-holder-thickness) (second usb-holder-size) (+ (last usb-holder-size) usb-holder-thickness))
- ;        (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))		 
-		 
+ ;        (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
+
 (def trrs-holder-hole
     (->>
 		(union
@@ -887,20 +1033,20 @@
 
 		 (->>(apply cube trrs-hole-size-back)
              (translate [(- (first trrs-holder-position )4.1) (- (second trrs-holder-position) 6.5) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)]))
-		 	
+
 		 (->>(apply   cylinder trrs-hole-size-right)
 	(rotate 1.5708 [1 0 0])
         (translate [(- (first trrs-holder-position ) 3.7) (+ (second trrs-holder-position) 10) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)])
 		)
-		)))		 
-		 
-		 
+		)))
 
-(def teensy-width 20)  
+
+
+(def teensy-width 20)
 (def teensy-height 12)
 (def teensy-length 33)
 (def teensy2-length 53)
-(def teensy-pcb-thickness 2) 
+(def teensy-pcb-thickness 2)
 (def teensy-holder-width  (+ 7 teensy-pcb-thickness))
 (def teensy-holder-height (+ 6 teensy-width))
 (def teensy-offset-height 5)
@@ -910,10 +1056,10 @@
 (def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
 (def teensy-holder-offset (/ teensy-holder-length -2))
 (def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
- 
-(def teensy-holder 
-    (->> 
-        (union 
+
+(def teensy-holder
+    (->>
+        (union
           (->> (cube 3 teensy-holder-length (+ 6 teensy-width))
                (translate [1.5 teensy-holder-offset 0]))
           (->> (cube teensy-pcb-thickness teensy-holder-length 3)
@@ -926,11 +1072,11 @@
                (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
         (translate [(- teensy-holder-width) 0 0])
         (translate [-1.4 0 0])
-        (translate [(first teensy-top-xy) 
-                    (- (second teensy-top-xy) 1) 
+        (translate [(first teensy-top-xy)
+                    (- (second teensy-top-xy) 1)
                     (/ (+ 6 teensy-width) 2)])
            ))
-		   
+
 (def wire-post-height 7)
 (def wire-post-overhang 3.5)
 (def wire-post-diameter 2.6)
@@ -940,7 +1086,7 @@
         (translate [0 (- offset) (+ (/ wire-post-height -2) 3) ])
         (rotate (/ α -2) [1 0 0])
         (translate [3 (/ mount-height -2) 0])))
-		
+
 (def wire-posts
   (union
      (thumb-ml-place (translate [-5 0 -2] (wire-post  1 0)))
@@ -952,53 +1098,53 @@
         (key-place column row (translate [-5 0 0] (wire-post 1 0)))
         (key-place column row (translate [0 0 0] (wire-post -1 6)))
         (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
-		   
-		   
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;Plate mount ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn screw-insert-shape [bottom-radius top-radius height] 
+(defn screw-insert-shape [bottom-radius top-radius height]
    (union  (cylinder [bottom-radius top-radius] height)(with-fn 55)
           (translate [0 0 (/ height 2)] (sphere top-radius))))
 
-(defn plate-screw-insert-shape [bottom-radius height] 
+(defn plate-screw-insert-shape [bottom-radius height]
    (union  (cylinder bottom-radius height)(with-fn 55))
-)		  
-		  
-		  
-(defn screw-insert [column row bottom-radius top-radius height] 
+)
+
+
+(defn screw-insert [column row bottom-radius top-radius height]
   (let [shift-right   (= column lastcol)
         shift-left    (= column 0)
         shift-up      (and (not (or shift-right shift-left)) (= row 0))
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
         position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
                        (if shift-down  (key-position column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
-                        (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0)) 
+                        (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
                                        (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
         ]
-		
+
     (->> ;;easy way to overload the function
 (if (>  top-radius 0.1) (->> (screw-insert-shape bottom-radius top-radius height) (translate [(first position) (second position) (/ height 2)]))
 (if (<  top-radius 0.1)  (->> (plate-screw-insert-shape bottom-radius height) (translate [(first position) (second position) (/ height 2)]))
 
-	
+
 	)
-         
+
     ))))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union (->> (screw-insert 0 0         bottom-radius top-radius height) (translate [8 0 3.6]));;top left
          (->> (screw-insert 0 lastrow   bottom-radius top-radius height)(translate [4. -4 3.6]))	;;left bottom
         (->> (screw-insert lastcol (+ lastrow 0.0)  bottom-radius top-radius (- height 0))(translate [-9.5 18.5 3.2]));;right bottom
-		 
+
          (->> (screw-insert 3 0         bottom-radius top-radius height)(translate [0 -6. 3.6]));;middle back
         (->> (screw-insert lastcol 0   bottom-radius top-radius height)(translate [-5 0 3.6]));;top right
-         
+
 		 ))
-		 
-	 
-		 
-(def screw-insert-height 4.)		;;Was 5.8 
+
+
+
+(def screw-insert-height 4.)		;;Was 5.8
 (def screw-insert-bottom-radius (/ 4.6 2));;controls the cutout size
 (def screw-insert-top-radius (/ 4 2))
 (def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius (+ screw-insert-height 4.4)))
@@ -1008,12 +1154,12 @@
 
 
 
-		
-		
+
+
 (def cut-bottom
 	(->>(cube 300 300 100)(translate [0 -10 -50]))
-)	
-		
+)
+
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ;;;;;;;;;Wrist rest;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1021,25 +1167,25 @@
 #_(def wrist-rest-cut
 	(->> (scale [1 1 2]
 		(->> (scale [1 1 1] wrist-rest) (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])
-			(translate [0 0 (+ 5 wrist-rest-back-height)])) 
+			(translate [0 0 (+ 5 wrist-rest-back-height)]))
 		)
 	)
 )
-#_(def wrist-rest-sides 
-	(->> 
+#_(def wrist-rest-sides
+	(->>
 		;(scale [2.5 2.5 1]
 			(difference
 			  (->> (scale[1.1, 1.2, 1]
-				;(hull 
+				;(hull
 					(->> wrist-rest (rotate  (translate [0 0 wrist-rest-back-height])(/ (* π wrist-rest-angle) 180)  [1 1 0]) )
 					(->> wrist-rest (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])))
 				)
 			; (->> wrist-rest (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])(translate [0 -2 (+ 2 wrist-rest-back-height)]))
 				(->> wrist-rest-front-cut (rotate  (/ (* π wrist-rest-angle) 180)))
-			)	
+			)
 		;)
 	)
-)	
+)
 (def wrist-rest-front-cut
 
 		(scale[1.1, 1, 1](->> (cylinder 7 200)(with-fn 300)
@@ -1061,57 +1207,57 @@
 	  (Math/cos(/ (* π wrist-rest-angle) 180))
 )
 
-(def scale-amount 
+(def scale-amount
 	(/ (* 83.7 scale-cos) 19.33)
 )
 
-(def wrist-rest	
+(def wrist-rest
 	(difference
 		 (scale [4.25  scale-amount  1] (difference (union
-			(difference 
+			(difference
 				;the main back circle
 						(scale[1.3, 1, 1](->> (cylinder 10 150)(with-fn 200)
-						(translate [0 0 0])))		
+						(translate [0 0 0])))
 					;front cut cube and circle
 				(scale[1.1, 1, 1](->> (cylinder 7 201)(with-fn 200)
 					(translate [0 -13.4 0]))
 				(->> (cube 18 10 201)(translate [0 -12.4 0]))
-				
+
 			))
 		;;side fillers
 			(->> (cylinder 6.8 200)(with-fn 200)
 				(translate [-6.15 -0.98 0]))
-				
+
 				(->> (cylinder 6.8 200)(with-fn 200)
 				(translate [6.15 -0.98 0]))
-		;;heart shapes at bottom		
+		;;heart shapes at bottom
 			(->> (cylinder 5.9 200)(with-fn 200)
 				(translate [-6.35 -2 0]))
-				
-				
+
+
 			(scale[1.01, 1, 1](->> (cylinder 5.9 200)(with-fn 200)
 			(translate [6.35 -2. 0])))
 				)
-			
+
 		)
 		)
-		
+
 		cut-bottom
 
 	)
 )
-		
 
-;(def right_wrist_connecter_x 25)	
+
+;(def right_wrist_connecter_x 25)
 (def wrist-rest-base
-	(->> 
+	(->>
 		(scale [1 1 1] ;;;;scale the wrist rest to the final size after it has been cut
-			(difference 
+			(difference
 				(scale [1.08 1.08 1] wrist-rest )
 				(->> (cube 200 200 200)(translate [0 0 (+ (+ (/ h-offset 2) (- wrist-rest-back-height h-offset) ) 100)]) (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])(rotate  (/ (* π wrist-rest-y-angle) 180)  [0 1 0]))
 			;	(->> (cube 200 200 200)(translate [0 0 (+ (+ (- wrist-rest-back-height h-offset) (* 2 h-offset)) 100)]) (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0]))
 			;	(->> (cube 200 200 200)(translate [0 0 (+ (+ (/ (* 88 (Math/tan(/ (* π wrist-rest-angle) 180))) 4) 100) wrist-rest-back-height)]) (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0]))
-			(->> (difference 
+			(->> (difference
 					wrist-rest
 					(->> (cube 200 200 200)(translate [0 0 (- (+ (/ h-offset 2) (- wrist-rest-back-height h-offset) ) (+ 100  wrist-rest-ledge))]) (rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])(rotate  (/ (* π wrist-rest-y-angle) 180)  [0 1 0]))
 					;(->> (cube 200 200 200)(translate [0 0 (- (+ (/ (* 17.7 (Math/tan(/ (* π wrist-rest-angle) 180))) 4) wrist-rest-back-height)(+ 100  wrist-rest-ledge))])(rotate  (/ (* π wrist-rest-angle) 180)  [1 0 0])))
@@ -1133,7 +1279,7 @@
 			(->> (cylinder 1.85 25)(with-fn 30) (rotate  (/  π 2)  [1 0 0])(translate [middle_wrist_connecter_x 14 4.5]))
 			(->>   (cylinder 2.8 5.2)(with-fn 50) (rotate  (/  π 2)  [1 0 0])(translate [middle_wrist_connecter_x 26 4.5]))
 			(->> (cube 6 3 12.2)(translate [middle_wrist_connecter_x (+ 10.0 nrows) 1.5]))
-			
+
 	;;left
 			(->> (cylinder 1.85 25)(with-fn 30) (rotate  (/  π 2)  [1 0 0])(translate [left_wrist_connecter_x 11 4.5]))
 			(->>   (cylinder 2.8 5.2)(with-fn 50) (rotate  (/  π 2)  [1 0 0])(translate [left_wrist_connecter_x (+ 17.25 nrows) 4.5]))
@@ -1144,7 +1290,7 @@
 (def rest-case-connectors
 	(difference
 		(union
-			
+
 			(scale [1 1 1.6] (->> (cylinder 6 60)(with-fn 200) (rotate  (/  π 2)  [1 0 0])(translate [right_wrist_connecter_x 4 0])));;right
 			(scale [1 1 1.6] (->> (cylinder 6 60)(with-fn 200) (rotate  (/  π 2)  [1 0 0])(translate [middle_wrist_connecter_x -5 0])))
 			(scale [1 1 1.6] (->> (cylinder 6 60)(with-fn 200) (rotate  (/  π 2)  [1 0 0])(translate [left_wrist_connecter_x -9 0])))
@@ -1152,66 +1298,66 @@
 		)
 	)
 )
-	
+
 (def wrist-rest-locate
 (key-position 3 8 (map + (wall-locate1 0 (- 4.9 (* 2 nrows))) [0 (/ mount-height 2) 0]))
 
-)	
+)
 	; (translate [(+ (first usb-holder-position ) 2) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
-	
-(def wrest-wall-cut		
+
+(def wrest-wall-cut
 (->> (for [xyz (range 1.00 10 3)];controls the scale last number needs to be lower for thinner walls
 						 (union
 							(translate[1, xyz,1] case-walls)
 						  ;(translate [0 0 -3])
 						)
 					)
-			))	
-	
+			))
 
-(def wrist-rest-build 
-	(difference 
-		(->> (union 
-		
-			(->> wrist-rest-base (translate [wrist_brse_position_x -32 0])(rotate  (/ (* π wrist-rest-rotation-angle) 180)  [0 0 1])) 
+
+(def wrist-rest-build
+	(difference
+		(->> (union
+
+			(->> wrist-rest-base (translate [wrist_brse_position_x -32 0])(rotate  (/ (* π wrist-rest-rotation-angle) 180)  [0 0 1]))
 					(->> (difference
-				;wrist-rest-sides 
-							
-							rest-case-connectors 
+				;wrist-rest-sides
+
+							rest-case-connectors
 							rest-case-cuts
 							cut-bottom
 					;	wrest-wall-cut
 							)
-							
+
 					)
 			)
-			 (translate [(+ (first thumborigin ) 33) (- (second thumborigin) 50) 0])		 	
+			 (translate [(+ (first thumborigin ) 33) (- (second thumborigin) 50) 0])
 		)
 	 (translate [(+ (first thumborigin ) 33) (- (second thumborigin) 50) 0] rest-case-cuts)
 	wrest-wall-cut
-	)		 
-	
-	
+	)
+
+
 	;(translate [25 -103 0]))
-)	
-	
+)
+
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ;;;;;;;;;Plate bottom;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-(def screw-insert-screw-holes  (screw-insert-all-shapes 1.8 1.8 10));;Cuts the holes for the pushfit		
+(def screw-insert-screw-holes  (screw-insert-all-shapes 1.8 1.8 10));;Cuts the holes for the pushfit
 (def plate-screw-recess  (screw-insert-all-shapes 3.1 1.95 2.1));;creates the recess for screws in bottom plate
 
 (def plate-bottom
-	(union (difference 
+	(union (difference
 		(hull case-walls)
 		(->> (cube 300 300 100)(translate [0 0 53.3]))
 		(translate [(+ (first thumborigin ) 33) (- (second thumborigin) 51) -0.3] rest-case-cuts)
 	)
-	
+
 	)
 )
-		
+
 (def plate-cutout				;;enlarges the case several times unions the result.  This is to cut the correct dimensions for the pljate
 	;; (->>   (union (for [xyz (range 0.985 1.3 0.03)];controls the scale last number needs to be lower for thinner walls
 				  (->>   (union (for [xyz (range 0.985 1.3 0.045)]
@@ -1219,54 +1365,54 @@
 				 ;(translate [0 0 1])
 				)
 			(->> case-walls(translate [0 -2 0])	)
-			)		
-	)			
-)	
-		
+			)
+	)
+)
 
-		
-			
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;&&&&&&&&Final export&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;		
-		
-		
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def model-right (difference 
+
+
+(def model-right (difference
                    (union
                     key-holes
                     connectors
                     thumb
                     thumb-connectors
-                    (difference 
-						(union case-walls 
+                    (difference
+						(union case-walls
 							(if (==  bottom-cover 1) screw-insert-outers)
 							;  teensy-holder
 							usb-holder
 							trrs-holder
 						   )
-                              ; rj9-space 
-						(if (== wrist-rest-on 1) (->> rest-case-cuts	(translate [(+ (first thumborigin ) 33) (- (second thumborigin)  (- 56 nrows)) 0])))  
+                              ; rj9-space
+						(if (== wrist-rest-on 1) (->> rest-case-cuts	(translate [(+ (first thumborigin ) 33) (- (second thumborigin)  (- 56 nrows)) 0])))
                           usb-holder-hole
 						  trrs-holder-hole
                                 screw-insert-holes
 							  )
-             
+
               ;    //  wire-posts
                     ; thumbcaps
                     ; caps
                     )
-                   (translate [0 0 -20] (cube 350 350 40)) 
+                   (translate [0 0 -20] (cube 350 350 40))
                   ))
 
 (spit "things/right.scad"
       (write-scad model-right))
- 
+
 (spit "things/left.scad"
       (write-scad (mirror [-1 0 0] model-right)))
-	  
 
-                  
+
+
 (spit "things/right-test.scad"
    (write-scad
 		(difference
@@ -1276,32 +1422,32 @@
                     thumb
                     thumb-connectors
 					 rj9-holder
-                    (difference 
-						(union case-walls 
+                    (difference
+						(union case-walls
 							(if (==  bottom-cover 1) screw-insert-outers)
 						;	(->> usb-holder(translate[20 0 0]))
-							     
+
 							   teensy-holder
                          ;;   original_usb_holder
 			;				usb-holder
 			;				trrs-holder
-			
+
 						   )
-                                 rj9-space 
+                                 rj9-space
                             original_usb_holder_hole
-						(if (== wrist-rest-on 1) (->> rest-case-cuts	(translate [(+ (first thumborigin ) 33) (- (second thumborigin) 50) 0])))  
+						(if (== wrist-rest-on 1) (->> rest-case-cuts	(translate [(+ (first thumborigin ) 33) (- (second thumborigin) 50) 0])))
                           ;(->> usb-holder-hole(translate[20 0 0]))
 			;			  trrs-holder-hole
                              ; screw-insert-holes
 							  )
-             
+
               ;    //  wire-posts
                     ; thumbcaps
                     ; caps
                     )
                    ;(translate [0 0 -20] (cube 350 350 40)
 			(translate [0 0 -20] (cube 350 350 40))
-		) 
+		)
   )
 )
 
@@ -1309,7 +1455,7 @@
 	(union
 	;	(translate [0 0 -3.4] plate-screw-recess)
 		(difference
-		
+
 			plate-bottom
 			plate-cutout
 			model-right
@@ -1329,40 +1475,40 @@
 			;;(->> (->> (cube 41 25 3)(rotate (deg2rad -33) [0 0 1]))(translate [(- (first thumborigin ) 43) (- (second thumborigin) 47) 3]))
 			(->> (->> (cube 25 18 3)(rotate (deg2rad -33) [0 0 1]))(translate [(- (first thumborigin ) 45) (- (second thumborigin) 47) 3]))
 		)
-	
+
 
 	;	case-walls
 	)
-                  
-)		  
-			
-			
+
+)
+
+
 (spit "things/sample.scad"
-      (write-scad 
+      (write-scad
 		(union
 			model-right
 			caps
 			thumbcaps
 			;(if (== bottom-cover 1) (->> model-plate-right))
 			(if (== wrist-rest-on 1) (->> wrist-rest-build 		)		)
-			
+
 		))
-)		
-	  
+)
 
 
-	  
+
+
 (spit "things/right-plate.scad"
       (write-scad model-plate-right))
 
-	  
+
 (spit "things/wrist-rest.scad"
-      (write-scad wrist-rest-build))	  
-	  
-	
-	  
-	  
-	  
+      (write-scad wrist-rest-build))
+
+
+
+
+
 (spit "things/test.scad"
       (write-scad
 		(union
@@ -1370,13 +1516,13 @@
 					(union
 						;(if (== wrist-rest-on 1) (->> wrist-rest-build 		)		);;add/remove the wrist rest holes
 						case-walls
-						screw-insert-outers	
+						screw-insert-outers
 					)
-						;screw-insert-outers 
+						;screw-insert-outers
 					;	screw-insert-outers
 						(translate [0 0 -5] screw-insert-screw-holes)
 						cut-bottom
-						
+
 				)
 			case-wall-cutout
 			)
