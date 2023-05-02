@@ -531,7 +531,7 @@
                )
 
 
-  (for [column (range 0 2)
+  (for [column (range 0 1)
                row rows
                :when (or
                									(.contains [1] row)
@@ -539,7 +539,7 @@
                ]
        
 	          (triangle-hulls
-	          (key-place column row web-post-bl)
+	         (key-place column row web-post-bl)
 	          ;(key-place column row web-post-br)
               (key-place column row web-post-n-key-br)
             (key-place column (inc row) web-post-tl)
