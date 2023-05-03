@@ -133,9 +133,9 @@
 
 
 (def n-key
-  (let [top-wall (->> (cube (+ keyswitch-width 3.5) 2.5 (+ plate-thickness 0.5))
+  (let [top-wall (->> (cube (+ keyswitch-width 3.5) 2.7 (+ plate-thickness 0.5))
                       (translate [0
-                                  (+ (/ 2.5 2) (/ keyswitch-height 2))
+                                  (+ (/ 2.7 2) (/ keyswitch-height 2))
                                   (- (/ plate-thickness 2) 0.25)]))
         left-wall (->> (cube 1.8 (+ keyswitch-height 3) (+ plate-thickness 0.5))
                        (translate [(+ (/ 1.8 2) (/ keyswitch-width 2))
@@ -363,8 +363,8 @@
                ]
            (->> n-key
 
-           		(translate [0 1.2 -1])
-                 (rotate (deg2rad 7)[1 0 0])
+           		(translate [0 1.20 -0.75])
+                 (rotate (deg2rad 5.25)[1 0 0])
                 (key-place column row)
                 )
            )
