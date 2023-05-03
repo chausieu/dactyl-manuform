@@ -1983,7 +1983,7 @@
                      )
                    (translate [0 0 -20] (cube 350 350 40))))
 
-(spit "things/test-n-key.scad"
+(spit "things/test-n-key-3.scad"
       (write-scad model-right))
 
 (spit "things/left.scad"
