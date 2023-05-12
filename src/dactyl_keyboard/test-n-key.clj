@@ -504,7 +504,7 @@
           ;    (key-place (inc column) (inc row) web-post-tl)))
 
           (for [column (range (+ innercol-offset 0) (dec 3))
-                row (range 0 lastrow)]
+                row (range 1 lastrow)]
             (triangle-hulls
              (key-place (inc column) row web-post-tl)
              (key-place column row web-post-tr)
@@ -517,7 +517,8 @@
 
  (for [column (range 0 2)
                row (range 1 4)
-               :when (and (not= row 1)
+               :when (and
+               ; (not= row 1)
                				(not= row lastrow)
                )
          ]
@@ -545,8 +546,6 @@
             (key-place column (inc row) web-post-tl)
 	         
            
-           ; (union (rotate (deg2rad 5) [ 0 -1 0 ] (key-place column (inc row) web-post-tl)))
-
 
 	          (key-place column (inc row) web-post-tr)
 	          (rotate (deg2rad 6) [ 1 0 0 ])
