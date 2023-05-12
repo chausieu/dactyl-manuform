@@ -319,14 +319,12 @@
                          (and (.contains [(+ innercol-offset 4)] column) extra-row (= ncols (+ innercol-offset 5)))
 
                          (and inner-column (not= row cornerrow)
-                         (not= row lastrow) (and (not= column 1) (not= row 2)))
+                         (not= row lastrow) (and (not= column 1) (not= row 2) ) (and (not= column 5) (not= row 2)))
          )]
            (->> single-plate
                 ;                (rotate (/ π 2) [0 0 1])
                 (key-place column row)))
-          
-        
-        
+
         (for [column (range 0 2)
                row (range 0  lastrow)
                :when (or (.contains [(+ innercol-offset 2) (+ innercol-offset 3)] column)
@@ -356,6 +354,21 @@
                 )
            )
 ;;;;;;;;;;;;
+
+
+								(for [column (range 5 6)
+               row rows
+               :when (or
+               									(.contains [2] row)
+                     )
+               ]
+           (->> n-key
+
+           		(translate [0 1.20 -0.75])
+                 (rotate (deg2rad 5.25)[1 0 0])
+                (key-place column row)
+                )
+           )
 
 
         ;; (for [column (range 2 6)
@@ -465,7 +478,7 @@
 
           (for [column columns
                 row (range 0 cornerrow)
-                :when (or (not= row 1 ) (not= column 1))
+                :when   (and (or(not= row 1 ) (not= column 1)) (or (not= row 1) (not= column 5)))
                 ]
             (triangle-hulls
              (key-place column row web-post-bl)
