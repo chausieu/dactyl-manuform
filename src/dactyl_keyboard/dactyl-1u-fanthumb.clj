@@ -468,24 +468,24 @@
              (key-place column row web-post-br)))
 
           ;; Column connections
-          ;; (for [column columns
-          ;;       row (range 0 cornerrow)]
-          ;;   (triangle-hulls
-          ;;    (key-place column row web-post-bl)
-          ;;    (key-place column row web-post-br)
-          ;;    (key-place column (inc row) web-post-tl)
-          ;;    (key-place column (inc row) web-post-tr)))
-
           (for [column columns
-                row (range 0 cornerrow)
-                :when   (and (or(not= row 1 ) (not= column 1)) (or (not= row 1) (not= column 5)))
-                ]
+                row (range 0 cornerrow)]
             (triangle-hulls
              (key-place column row web-post-bl)
              (key-place column row web-post-br)
              (key-place column (inc row) web-post-tl)
-             (key-place column (inc row) web-post-tr))
-          )
+             (key-place column (inc row) web-post-tr)))
+
+          ; (for [column columns
+          ;       row (range 0 cornerrow)
+          ;       :when   (and (or(not= row 1 ) (not= column 1)) (or (not= row 1) (not= column 5)))
+          ;       ]
+          ;   (triangle-hulls
+          ;    (key-place column row web-post-bl)
+          ;    (key-place column row web-post-br)
+          ;    (key-place column (inc row) web-post-tl)
+          ;    (key-place column (inc row) web-post-tr))
+          ; )
 
           ;; Diagonal connections
           (for [column (range 0 (dec ncols))
